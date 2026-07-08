@@ -116,3 +116,35 @@ export interface FileUploadFieldProps<T extends FieldValues> {
   placeholder: string;
   hint: string;
 }
+import { PLANS, PlanType } from "@/lib/subscription-constants";
+
+export interface SessionCheckResult {
+  allowed: boolean;
+  currentCount: number;
+  limit: number;
+  plan: PlanType;
+  maxDurationMinutes: number;
+  error?: string;
+}
+
+export interface StartSessionResult {
+  success: boolean;
+  sessionId?: string;
+  maxDurationMinutes?: number;
+  error?: string;
+  isBillingError?: boolean;
+}
+
+export interface EndSessionResult {
+  success: boolean;
+  error?: string;
+}
+
+// Fallback module declarations for packages missing type definitions in this workspace
+declare module "sonner";
+declare module "@vercel/blob/client";
+declare module "@hookform/resolvers/zod";
+declare module "react-hook-form";
+declare module "lucide-react";
+declare module "@clerk/nextjs";
+declare module "next/navigation";

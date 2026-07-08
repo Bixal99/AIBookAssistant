@@ -1,29 +1,27 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import { ui } from "@clerk/ui";
 import type { Metadata } from "next";
-import { IBM_Plex_Serif, Mona_Sans } from "next/font/google";
+import { IBM_Plex_Serif, Mona_Sans} from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+
+import Navbar from "@/components/Navbar";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-import Navbar from "@/components/ui/Navbar";
+import {Toaster} from "@/components/ui/sonner";
 
 const ibmPlexSerif = IBM_Plex_Serif({
-  variable: "--font-ibm-plex-serif",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
+    variable: "--font-ibm-plex-serif",
+    subsets: ['latin'],
+    weight: ['400', '500', '600', '700'],
+    display: 'swap'
 });
 
 const monaSans = Mona_Sans({
-  variable: "--font-mona-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
+    variable: '--font-mona-sans',
+    subsets: ['latin'],
+    display: 'swap'
+})
 
 export const metadata: Metadata = {
-  title: "BookBy",
-  description:
-    "Transform your books into interactive AI conversations. Upload PDFs, and chat with your books using voice",
+  title: "Bookified",
+  description: "Transform your books into interactive AI conversations. Upload PDFs, and chat with your books using voice.",
 };
 
 export default function RootLayout({
@@ -32,21 +30,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn(
-        "h-full",
-        "relative font-sans antialiased",
-        ibmPlexSerif.variable,
-        monaSans.variable,
-      )}
-    >
-      <body className="min-h-full flex flex-col">
-        <ClerkProvider ui={ui}>
-          {children}
-          <Navbar />
-        </ClerkProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+        <html lang="en">
+          <body
+            className={`${ibmPlexSerif.variable} ${monaSans.variable} relative font-sans antialiased`}
+          >
+            <Navbar />
+            {children}
+            <Toaster />
+          </body>
+        </html>
+    </ClerkProvider>
   );
 }
