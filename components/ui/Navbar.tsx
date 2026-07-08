@@ -1,14 +1,7 @@
 "use client";
-import {
-  SignInButton,
-  SignUpButton,
-  Show,
-  UserButton,
-  useUser,
-} from "@clerk/nextjs";
+import { Show, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 
 const navItems = [
@@ -20,20 +13,22 @@ const Navbar = () => {
   const pathName = usePathname();
   const { user } = useUser();
   return (
-    <header className="w-full fixed z-50 bg-[var(--bg-primary)]">
-      <div className="wrapper navbar-height py-4 flex justify-between items-center gap-4">
-        <Link href="/" className="flex gap-0.5 items-center">
+    <header className="fixed inset-x-0 top-0 z-50 bg-[#faf4e8]/95 backdrop-blur-sm">
+      <div className="wrapper flex h-[74px] items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-2 text-[#1f2433]">
           <Image
             src="/assets/logo.png"
-            alt="BookBy"
-            width={42}
+            alt="Bookified"
+            width={26}
             height={26}
-            style={{ width: "auto", height: "auto" }}
+            className="h-[18px] w-auto"
           />
-          <span className="logo-text">BookBy</span>
+          <span className="text-[18px] font-semibold tracking-[-0.03em]">
+            Bookified
+          </span>
         </Link>
 
-        <nav className="w-fit flex gap-7.5 items-center">
+        <nav className="flex items-center gap-7 text-[15px] font-medium text-[#1f2433]">
           {navItems.map(({ label, href }) => {
             const isActive =
               pathName === href || (href !== "/" && pathName.startsWith(href));
@@ -42,10 +37,11 @@ const Navbar = () => {
               <Link
                 href={href}
                 key={href}
-                className={cn(
-                  "nav-link-base",
-                  isActive ? "nav-link-active" : "text-black hover:opacity-70",
-                )}
+                className={
+                  isActive
+                    ? "border-b border-[#1f2433] pb-1 text-[#1f2433]"
+                    : "text-[#1f2433] opacity-90 transition-opacity hover:opacity-60"
+                }
               >
                 {label}
               </Link>
@@ -53,23 +49,14 @@ const Navbar = () => {
           })}
         </nav>
 
-        <div className="flex gap-7.5 items-center">
+        <div className="flex items-center gap-3 text-[#1f2433]">
           <Show when="signed-out">
-            <SignInButton mode="modal">
-              <button type="button" className="nav-btn">
-                Sign in
-              </button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <button type="button" className="btn-primary px-4 py-2 text-sm">
-                Sign up
-              </button>
-            </SignUpButton>
+            <span className="text-sm font-medium opacity-70">Guest</span>
           </Show>
           <Show when="signed-in">
-            <div className="nav-user-link">
+            <div className="flex items-center gap-2.5">
               <UserButton />
-              <Link href="/subscriptions" className="nav-user-name">
+              <Link href="/subscriptions" className="text-[15px] font-medium">
                 {user?.firstName ?? "Account"}
               </Link>
             </div>
