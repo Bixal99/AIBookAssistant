@@ -1,5 +1,5 @@
 "use client";
-import { Show, UserButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -18,13 +18,13 @@ const Navbar = () => {
         <Link href="/" className="flex items-center gap-2 text-[#1f2433]">
           <Image
             src="/assets/logo.png"
-            alt="Bookified"
+            alt="BookBy"
             width={26}
             height={26}
             className="h-[18px] w-auto"
           />
           <span className="text-[18px] font-semibold tracking-[-0.03em]">
-            Bookified
+            BookBy
           </span>
         </Link>
 
@@ -50,17 +50,16 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-3 text-[#1f2433]">
-          <Show when="signed-out">
+          {!user ? (
             <span className="text-sm font-medium opacity-70">Guest</span>
-          </Show>
-          <Show when="signed-in">
+          ) : (
             <div className="flex items-center gap-2.5">
               <UserButton />
               <Link href="/subscriptions" className="text-[15px] font-medium">
                 {user?.firstName ?? "Account"}
               </Link>
             </div>
-          </Show>
+          )}
         </div>
       </div>
     </header>
