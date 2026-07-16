@@ -100,7 +100,7 @@ export async function getDashboardAnalytics(
     booksWithVoice,
     avgDuration,
     recentBooks,
-    readingHistory,
+    readingProgress,
     recentVoiceSessions,
     booksInRange,
     voiceInRange,
@@ -143,7 +143,7 @@ export async function getDashboardAnalytics(
       orderBy: { createdAt: "desc" },
       include: { categories: { include: { category: true } } },
     }),
-    prisma.readingHistory.findMany({
+    prisma.readingProgress.findMany({
       where: { userId },
       orderBy: { lastOpenedAt: "desc" },
       include: { book: true },
@@ -325,7 +325,7 @@ export async function getDashboardAnalytics(
     storageTotal: totalStorage,
     monthlyUploads,
     recentBooks,
-    readingHistory,
+    readingProgress,
     recentVoiceSessions,
     userBookCount: totalBooks,
   };

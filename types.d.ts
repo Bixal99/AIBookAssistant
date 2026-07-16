@@ -54,6 +54,32 @@ export interface IVoiceSession {
   updatedAt: Date | string;
 }
 
+export interface IReadingProgress {
+  _id: string;
+  id: string;
+  userId: string;
+  bookId: string;
+  currentPage: number;
+  totalPages: number;
+  percentage: number;
+  lastOpenedAt: Date | string;
+  completedAt?: Date | string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface IReadingSession {
+  _id: string;
+  id: string;
+  userId: string;
+  bookId: string;
+  startedAt: Date | string;
+  endedAt?: Date | string | null;
+  durationSeconds: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
 // ============================================
 // FORM & INPUT TYPES
 // ============================================

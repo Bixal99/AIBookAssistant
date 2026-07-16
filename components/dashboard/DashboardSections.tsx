@@ -26,15 +26,12 @@ import { formatDurationLabel } from "@/lib/utils";
 export function DashboardHero({
   name,
   image,
-  bookCount,
+  continueHref,
 }: {
   name: string;
   image?: string | null;
-  bookCount: number;
+  continueHref: string;
 }) {
-  const continueHref =
-    bookCount > 0 ? ROUTES.library : ROUTES.booksNew;
-
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }}
@@ -193,7 +190,7 @@ export function DashboardRecentBooks({
 export function DashboardContinueReading({
   items,
 }: {
-  items: DashboardAnalytics["readingHistory"];
+  items: DashboardAnalytics["readingProgress"];
 }) {
   const entries = items.filter((item) => item.book?.title && item.book?.slug);
 
@@ -225,12 +222,19 @@ export function DashboardContinueReading({
             </p>
             <p className="truncate text-xs text-[var(--text-secondary)]">
               {item.book.author}
+            </p>
+            <p className="mt-1 text-xs text-[var(--text-secondary)]">
+              Page {item.currentPage}
+              {item.totalPages > 0 ? ` / ${item.totalPages}` : ""}
               {" · "}
+              {Math.round(item.percentage)}% complete
+            </p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
               Last opened <LocalDateTime value={item.lastOpenedAt} />
             </p>
           </div>
           <Button asChild size="sm" className="shrink-0 rounded-full !text-white">
-            <Link href={`/books/${item.book.slug}`}>Open</Link>
+            <Link href={`/books/${item.book.slug}`}>Resume</Link>
           </Button>
         </div>
       ))}

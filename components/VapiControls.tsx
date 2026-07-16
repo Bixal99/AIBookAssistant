@@ -11,8 +11,19 @@ import BookCover from "@/components/BookCover";
 import Transcript from "@/components/Transcript";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/auth-constants";
+import { cn } from "@/lib/utils";
 
-const VapiControls = ({ book }: { book: IBook }) => {
+type VapiControlsProps = {
+  book: IBook;
+  variant?: "full" | "workspace";
+  className?: string;
+};
+
+const VapiControls = ({
+  book,
+  variant = "full",
+  className,
+}: VapiControlsProps) => {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const {
@@ -60,6 +71,7 @@ const VapiControls = ({ book }: { book: IBook }) => {
   };
 
   const statusDisplay = getStatusDisplay();
+  const isWorkspace = variant === "workspace";
 
   const handleDone = () => {
     setSaving(true);
@@ -76,9 +88,69 @@ const VapiControls = ({ book }: { book: IBook }) => {
     }
   };
 
+  if (isWorkspace) {
+    return (
+      <div className={cn("flex h-full min-h-0 flex-col gap-2", className)}>
+        <div className="flex shrink-0 items-center gap-2 rounded-xl bg-[var(--landing-maroon-soft)] p-2.5">
+          <div className="relative shrink-0">
+            {isActive &&
+              (status === "speaking" || status === "thinking") && (
+                <div className="absolute inset-0 animate-ping rounded-full bg-card opacity-75" />
+              )}
+            <button
+              type="button"
+              onClick={isActive ? stop : start}
+              disabled={status === "connecting" || saving}
+              className={`vapi-mic-btn relative z-10 !h-10 !w-10 shadow-md ${
+                isActive ? "vapi-mic-btn-active" : "vapi-mic-btn-inactive"
+              }`}
+              aria-label={isActive ? "Stop conversation" : "Start conversation"}
+            >
+              {isActive ? (
+                <Mic className="size-4 text-white" />
+              ) : (
+                <MicOff className="size-4 text-[var(--landing-ink)]" />
+              )}
+            </button>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <div className="vapi-status-indicator !px-2 !py-1">
+                <span className={`vapi-status-dot ${statusDisplay.color}`} />
+                <span className="vapi-status-text !text-[11px]">
+                  {statusDisplay.label}
+                </span>
+              </div>
+              <div className="vapi-status-indicator !px-2 !py-1">
+                <span className="vapi-status-text !text-[11px]">
+                  {book.persona || "Daniel"}
+                </span>
+              </div>
+              <div className="vapi-status-indicator !px-2 !py-1">
+                <span className="vapi-status-text !text-[11px]">
+                  {formatDuration(duration)}/
+                  {formatDuration(maxDurationSeconds)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="vapi-transcript-wrapper min-h-0 flex-1">
+          <div className="transcript-container h-full min-h-0">
+            <Transcript
+              messages={messages}
+              currentMessage={currentMessage}
+              currentUserMessage={currentUserMessage}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="book-session-layout">
-      {/* Compact header */}
+    <div className={cn("book-session-layout", className)}>
       <div className="vapi-header-card shrink-0 !gap-4 !p-4 sm:!p-5">
         <div className="vapi-cover-wrapper">
           <BookCover
@@ -114,9 +186,9 @@ const VapiControls = ({ book }: { book: IBook }) => {
 
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-2.5">
           <div>
-            <h1 className="mb-0.5 truncate font-serif text-xl font-bold text-[var(--landing-ink)] sm:text-2xl">
+            <h2 className="mb-0.5 truncate font-serif text-xl font-bold text-[var(--landing-ink)] sm:text-2xl">
               {book.title}
-            </h1>
+            </h2>
             <p className="text-sm font-medium text-[var(--text-secondary)]">
               by {book.author}
             </p>
@@ -144,7 +216,6 @@ const VapiControls = ({ book }: { book: IBook }) => {
         </div>
       </div>
 
-      {/* Conversation fills remaining height */}
       <div className="vapi-transcript-wrapper min-h-0 flex-1">
         <div className="transcript-container h-full min-h-0">
           <Transcript
@@ -155,7 +226,6 @@ const VapiControls = ({ book }: { book: IBook }) => {
         </div>
       </div>
 
-      {/* Actions at the end — outside the boxes */}
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 pt-1">
         <Button
           type="button"

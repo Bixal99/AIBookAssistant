@@ -3,7 +3,7 @@
 import { CreateBook, TextSegment } from "@/types";
 import { generateSlug, serializeData } from "@/lib/utils";
 import { prisma } from "@/lib/db";
-import type { Book, BookSegment } from "@prisma/client";
+import type { Book, BookSegment, ReadingProgress } from "@prisma/client";
 import {
   categorySlugFromName,
   deleteBookBlobs,
@@ -17,6 +17,7 @@ import { createNotification } from "@/lib/notifications";
 
 type BookWithId = Book & { _id: string };
 type SegmentWithId = BookSegment & { _id: string };
+type ReadingProgressWithId = ReadingProgress & { _id: string };
 
 const withBookId = (book: Book): BookWithId => ({
   ...book,
@@ -26,6 +27,13 @@ const withBookId = (book: Book): BookWithId => ({
 const withSegmentId = (segment: BookSegment): SegmentWithId => ({
   ...segment,
   _id: segment.id,
+});
+
+const withReadingProgressId = (
+  progress: ReadingProgress,
+): ReadingProgressWithId => ({
+  ...progress,
+  _id: progress.id,
 });
 
 async function upsertCategoryLink(bookId: string, categoryInput?: string) {
@@ -234,6 +242,47 @@ export const getBookBySlug = async (slug: string) => {
   }
 };
 
+export const getBookWorkspaceBySlug = async (slug: string) => {
+  try {
+    const { error, book, session } = await getOwnedBookBySlug(slug);
+
+    if (error || !book || !session) {
+      return { success: false, error: error ?? "Book not found" };
+    }
+
+    const progress = await prisma.readingProgress.upsert({
+      where: {
+        userId_bookId: { userId: session.user.id, bookId: book.id },
+      },
+      create: {
+        userId: session.user.id,
+        bookId: book.id,
+        currentPage: 1,
+        totalPages: 0,
+        percentage: 0,
+        lastOpenedAt: new Date(),
+      },
+      update: {
+        lastOpenedAt: new Date(),
+      },
+    });
+
+    return {
+      success: true,
+      data: serializeData({
+        ...withBookId(book),
+        readingProgress: withReadingProgressId(progress),
+      }),
+    };
+  } catch (e) {
+    console.error("Error fetching book workspace", e);
+    return {
+      success: false,
+      error: e,
+    };
+  }
+};
+
 export const updateBookMetadata = async (
   bookId: string,
   data: { title?: string; author?: string; category?: string },
@@ -313,13 +362,16 @@ export const recordBookOpen = async (bookId: string) => {
       return { success: false, error: "Forbidden" };
     }
 
-    await prisma.readingHistory.upsert({
+    await prisma.readingProgress.upsert({
       where: {
         userId_bookId: { userId: session.user.id, bookId },
       },
       create: {
         userId: session.user.id,
         bookId,
+        currentPage: 1,
+        totalPages: 0,
+        percentage: 0,
         lastOpenedAt: new Date(),
       },
       update: { lastOpenedAt: new Date() },

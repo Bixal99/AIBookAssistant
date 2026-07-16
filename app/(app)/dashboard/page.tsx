@@ -18,13 +18,18 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const session = await requireSession(ROUTES.dashboard);
   const data = await getDashboardAnalytics(session.user.id, "30d");
+  const continueHref = data.readingProgress[0]?.book?.slug
+    ? `/books/${data.readingProgress[0].book.slug}`
+    : data.userBookCount > 0
+      ? ROUTES.library
+      : ROUTES.booksNew;
 
   return (
     <div className="space-y-8">
       <DashboardHero
         name={session.user.name}
         image={session.user.image}
-        bookCount={data.userBookCount}
+        continueHref={continueHref}
       />
 
       <DashboardKpiCards kpis={data.kpis} />
@@ -48,7 +53,7 @@ export default async function DashboardPage() {
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-semibold">Continue Reading</h2>
-          <DashboardContinueReading items={data.readingHistory} />
+          <DashboardContinueReading items={data.readingProgress} />
         </section>
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-semibold">

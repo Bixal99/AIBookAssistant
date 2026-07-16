@@ -35,6 +35,13 @@ type AppSidebarProps = {
 function isActivePath(pathname: string, href: string) {
   if (pathname === href) return true;
   if (href === ROUTES.dashboard) return false;
+  if (
+    href === ROUTES.library &&
+    pathname.startsWith("/books/") &&
+    !pathname.startsWith("/books/new")
+  ) {
+    return true;
+  }
   if (href === ROUTES.booksNew) {
     return pathname === ROUTES.booksNew || pathname.startsWith("/books/new");
   }
