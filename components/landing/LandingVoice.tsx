@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LandingButton from "@/components/landing/LandingButton";
+import { AUTH_COPY, ROUTES } from "@/lib/auth-constants";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -66,9 +67,11 @@ const LandingVoice = () => {
               speed.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <LandingButton href="/books/new">Start with a book</LandingButton>
-              <LandingButton href="/library" variant="secondary">
-                Open your library
+              <LandingButton href={ROUTES.signUp}>
+                {AUTH_COPY.getStarted}
+              </LandingButton>
+              <LandingButton href={ROUTES.signIn} variant="secondary">
+                {AUTH_COPY.signInCta}
               </LandingButton>
             </div>
           </div>

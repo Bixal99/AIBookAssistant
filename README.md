@@ -282,6 +282,12 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
 DATABASE_URL=postgresql://postgres:bookby_dev@localhost:5433/bookby
 
+# Better Auth — generate secret with: npx auth secret
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=http://localhost:3000
+# Comma-separated emails that receive the admin role on sign-up
+ADMIN_EMAILS=
+
 BLOB_READ_WRITE_TOKEN=
 
 NEXT_PUBLIC_VAPI_API_KEY=
@@ -312,15 +318,19 @@ npm run dev
 
 Then open [http://localhost:3000](http://localhost:3000).
 
-- `/` — marketing landing  
-- `/library` — book library  
-- `/books/new` — upload a PDF  
+- `/` — marketing landing (public)  
+- `/sign-up` — create account  
+- `/sign-in` — sign in  
+- `/library` — book library (authenticated)  
+- `/books/new` — upload a PDF (authenticated)  
 
 ---
 
 ## Future Improvements
 
-- Authentication and per-user libraries
+- Per-user libraries
+- Admin portal UI
+- OAuth (Google / GitHub), magic links, email verification, password reset
 - Bookmarking and notes for passages
 - Reading progress, goals, and streaks
 - Chapter-level navigation and outlines
@@ -337,7 +347,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 ## Notes
 
 - The repository and package name are **BookBy**.
-- Auth (Clerk) and MongoDB were removed; the app currently runs without login against a shared library.
+- Authentication uses **Better Auth** (self-hosted, open source) with email/password and a `user` | `admin` role skeleton. MongoDB / Clerk are not used.
 - Some third-party environment variable names may still follow older integration naming — that is expected unless you rename them everywhere.
 
 ---

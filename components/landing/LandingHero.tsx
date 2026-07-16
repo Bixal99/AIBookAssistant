@@ -5,6 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import LandingButton from "@/components/landing/LandingButton";
+import { AUTH_COPY, ROUTES } from "@/lib/auth-constants";
 
 gsap.registerPlugin(useGSAP);
 
@@ -104,9 +105,11 @@ const LandingHero = () => {
               and conversation in one place.
             </p>
             <div className="landing-ctas mt-8 flex flex-wrap items-center gap-3">
-              <LandingButton href="/books/new">Start with a book</LandingButton>
-              <LandingButton href="/library" variant="secondary">
-                Browse library
+              <LandingButton href={ROUTES.signUp}>
+                {AUTH_COPY.getStarted}
+              </LandingButton>
+              <LandingButton href={ROUTES.signIn} variant="secondary">
+                {AUTH_COPY.signInCta}
               </LandingButton>
             </div>
           </div>

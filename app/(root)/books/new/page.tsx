@@ -1,6 +1,10 @@
 import UploadForm from "@/components/UploadForm";
+import { requireSession } from "@/lib/auth-session";
+import { ROUTES } from "@/lib/auth-constants";
 
-const Page = () => {
+const Page = async () => {
+    await requireSession(ROUTES.booksNew);
+
     return (
         <main className="new-book">
             <section className="flex flex-col gap-5 text-center">

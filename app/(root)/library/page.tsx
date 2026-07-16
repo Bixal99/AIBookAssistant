@@ -4,12 +4,16 @@ import BookCard from "@/components/BookCard";
 import { getAllBooks } from "@/lib/actions/book.actions";
 import Search from "@/components/Search";
 import Link from "next/link";
+import { requireSession } from "@/lib/auth-session";
+import { ROUTES } from "@/lib/auth-constants";
 
 const Page = async ({
   searchParams,
 }: {
   searchParams: Promise<{ query?: string }>;
 }) => {
+  await requireSession(ROUTES.library);
+
   const { query } = await searchParams;
 
   const bookResults = await getAllBooks(query);
@@ -48,7 +52,7 @@ const Page = async ({
               : "Upload your first PDF to start building your library and generate AI conversations."}
           </p>
           <Link
-            href="/books/new"
+            href={ROUTES.booksNew}
             className="mt-6 inline-flex items-center justify-center rounded-full bg-[#212a3b] px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             Add a book

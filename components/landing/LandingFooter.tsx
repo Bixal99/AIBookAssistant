@@ -3,11 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { AUTH_COPY, ROUTES } from "@/lib/auth-constants";
 
 const productLinks = [
-  { label: "Library", href: "/library" },
-  { label: "Add book", href: "/books/new" },
-  { label: "Start with a book", href: "/books/new" },
+  { label: AUTH_COPY.getStarted, href: ROUTES.signUp },
+  { label: AUTH_COPY.signInCta, href: ROUTES.signIn },
 ];
 
 const exploreLinks = [
