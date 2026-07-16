@@ -4,6 +4,16 @@ import { CreateBook, TextSegment } from "@/types";
 import { generateSlug, serializeData } from "@/lib/utils";
 import { prisma } from "@/lib/db";
 import type { Book, BookSegment } from "@prisma/client";
+import {
+  categorySlugFromName,
+  deleteBookBlobs,
+  getBookForMutation,
+  getOwnedBookBySlug,
+  normalizeCategoryName,
+  requireAuthSession,
+} from "@/lib/book-access";
+import { isAdmin } from "@/lib/auth-session";
+import { createNotification } from "@/lib/notifications";
 
 type BookWithId = Book & { _id: string };
 type SegmentWithId = BookSegment & { _id: string };
@@ -18,19 +28,60 @@ const withSegmentId = (segment: BookSegment): SegmentWithId => ({
   _id: segment.id,
 });
 
+async function upsertCategoryLink(bookId: string, categoryInput?: string) {
+  const name = categoryInput ? normalizeCategoryName(categoryInput) : "";
+  if (!name) return;
+
+  const slug = categorySlugFromName(name);
+  if (!slug) return;
+
+  const category = await prisma.category.upsert({
+    where: { slug },
+    create: { name, slug },
+    update: { name },
+  });
+
+  await prisma.bookCategory.upsert({
+    where: {
+      bookId_categoryId: { bookId, categoryId: category.id },
+    },
+    create: { bookId, categoryId: category.id },
+    update: {},
+  });
+}
+
 export const getAllBooks = async (search?: string) => {
   try {
-    const query = search?.trim();
+    const session = await requireAuthSession();
+    if (!session) {
+      return { success: false, error: "Unauthorized" };
+    }
 
+    const query = search?.trim();
     const books = await prisma.book.findMany({
-      where: query
-        ? {
-            OR: [
-              { title: { contains: query, mode: "insensitive" } },
-              { author: { contains: query, mode: "insensitive" } },
-            ],
-          }
-        : undefined,
+      where: {
+        userId: session.user.id,
+        ...(query
+          ? {
+              OR: [
+                { title: { contains: query, mode: "insensitive" } },
+                { author: { contains: query, mode: "insensitive" } },
+                {
+                  categories: {
+                    some: {
+                      category: {
+                        name: { contains: query, mode: "insensitive" },
+                      },
+                    },
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
+      include: {
+        categories: { include: { category: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -47,10 +98,44 @@ export const getAllBooks = async (search?: string) => {
   }
 };
 
+export const getAllBooksAdmin = async () => {
+  try {
+    const session = await requireAuthSession();
+    if (!session || !isAdmin(session)) {
+      return { success: false, error: "Forbidden" };
+    }
+
+    const books = await prisma.book.findMany({
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        categories: { include: { category: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return {
+      success: true,
+      data: serializeData(books.map(withBookId)),
+    };
+  } catch (e) {
+    console.error("Error fetching admin books", e);
+    return { success: false, error: e };
+  }
+};
+
 export const checkBookExists = async (title: string) => {
   try {
+    const session = await requireAuthSession();
+    if (!session) {
+      return { exists: false, error: "Unauthorized" };
+    }
+
     const slug = generateSlug(title);
-    const existingBook = await prisma.book.findUnique({ where: { slug } });
+    const existingBook = await prisma.book.findUnique({
+      where: {
+        userId_slug: { userId: session.user.id, slug },
+      },
+    });
 
     if (existingBook) {
       return {
@@ -68,8 +153,17 @@ export const checkBookExists = async (title: string) => {
 
 export const createBook = async (data: CreateBook) => {
   try {
+    const session = await requireAuthSession();
+    if (!session) {
+      return { success: false, error: "Unauthorized" };
+    }
+
     const slug = generateSlug(data.title);
-    const existingBook = await prisma.book.findUnique({ where: { slug } });
+    const existingBook = await prisma.book.findUnique({
+      where: {
+        userId_slug: { userId: session.user.id, slug },
+      },
+    });
 
     if (existingBook) {
       return {
@@ -81,6 +175,7 @@ export const createBook = async (data: CreateBook) => {
 
     const book = await prisma.book.create({
       data: {
+        userId: session.user.id,
         title: data.title,
         author: data.author,
         persona: data.persona,
@@ -89,9 +184,20 @@ export const createBook = async (data: CreateBook) => {
         coverURL: data.coverURL,
         coverBlobKey: data.coverBlobKey,
         fileSize: data.fileSize,
+        coverFileSize: data.coverFileSize ?? 0,
         slug,
         totalSegments: 0,
       },
+    });
+
+    await upsertCategoryLink(book.id, data.category);
+
+    await createNotification({
+      userId: session.user.id,
+      type: "BOOK_UPLOADED",
+      title: "Book uploaded successfully",
+      message: `"${book.title}" is in your library.`,
+      link: `/books/${book.slug}`,
     });
 
     return {
@@ -109,10 +215,10 @@ export const createBook = async (data: CreateBook) => {
 
 export const getBookBySlug = async (slug: string) => {
   try {
-    const book = await prisma.book.findUnique({ where: { slug } });
+    const { error, book } = await getOwnedBookBySlug(slug);
 
-    if (!book) {
-      return { success: false, error: "Book not found" };
+    if (error || !book) {
+      return { success: false, error: error ?? "Book not found" };
     }
 
     return {
@@ -128,12 +234,113 @@ export const getBookBySlug = async (slug: string) => {
   }
 };
 
+export const updateBookMetadata = async (
+  bookId: string,
+  data: { title?: string; author?: string; category?: string },
+) => {
+  try {
+    const { error, book, session } = await getBookForMutation(bookId);
+    if (error || !book || !session) {
+      return { success: false, error: error ?? "Unauthorized" };
+    }
+
+    const title = data.title?.trim() || book.title;
+    const author = data.author?.trim() || book.author;
+    const slug = generateSlug(title);
+
+    if (slug !== book.slug) {
+      const conflict = await prisma.book.findUnique({
+        where: {
+          userId_slug: { userId: book.userId, slug },
+        },
+      });
+      if (conflict && conflict.id !== book.id) {
+        return { success: false, error: "A book with this title already exists." };
+      }
+    }
+
+    const updated = await prisma.book.update({
+      where: { id: book.id },
+      data: { title, author, slug },
+    });
+
+    if (data.category !== undefined) {
+      await prisma.bookCategory.deleteMany({ where: { bookId: book.id } });
+      await upsertCategoryLink(book.id, data.category);
+    }
+
+    return {
+      success: true,
+      data: serializeData(withBookId(updated)),
+    };
+  } catch (e) {
+    console.error("Error updating book metadata", e);
+    return { success: false, error: e };
+  }
+};
+
+export const deleteBook = async (bookId: string) => {
+  try {
+    const { error, book } = await getBookForMutation(bookId);
+    if (error || !book) {
+      return { success: false, error: error ?? "Unauthorized" };
+    }
+
+    await deleteBookBlobs(book);
+    await prisma.book.delete({ where: { id: book.id } });
+
+    return { success: true };
+  } catch (e) {
+    console.error("Error deleting book", e);
+    return { success: false, error: e };
+  }
+};
+
+export const recordBookOpen = async (bookId: string) => {
+  try {
+    const session = await requireAuthSession();
+    if (!session) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const book = await prisma.book.findUnique({ where: { id: bookId } });
+    if (!book) {
+      return { success: false, error: "Book not found" };
+    }
+
+    const admin = isAdmin(session);
+    if (!admin && book.userId !== session.user.id) {
+      return { success: false, error: "Forbidden" };
+    }
+
+    await prisma.readingHistory.upsert({
+      where: {
+        userId_bookId: { userId: session.user.id, bookId },
+      },
+      create: {
+        userId: session.user.id,
+        bookId,
+        lastOpenedAt: new Date(),
+      },
+      update: { lastOpenedAt: new Date() },
+    });
+
+    return { success: true };
+  } catch (e) {
+    console.error("Error recording book open", e);
+    return { success: false, error: e };
+  }
+};
+
 export const saveBookSegments = async (
   bookId: string,
   segments: TextSegment[],
 ) => {
   try {
-    console.log("Saving book segments...");
+    const { error, book, session } = await getBookForMutation(bookId);
+    if (error || !book || !session) {
+      return { success: false, error: error ?? "Unauthorized" };
+    }
 
     await prisma.bookSegment.createMany({
       data: segments.map(({ text, segmentIndex, pageNumber, wordCount }) => ({
@@ -150,7 +357,13 @@ export const saveBookSegments = async (
       data: { totalSegments: segments.length },
     });
 
-    console.log("Book segments saved successfully.");
+    await createNotification({
+      userId: session.user.id,
+      type: "PDF_PROCESSED",
+      title: "PDF processing finished",
+      message: `"${book.title}" is ready for voice chat.`,
+      link: `/books/${book.slug}`,
+    });
 
     return {
       success: true,
@@ -171,7 +384,10 @@ export const searchBookSegments = async (
   limit: number = 5,
 ) => {
   try {
-    console.log(`Searching for: "${query}" in book ${bookId}`);
+    const { error } = await getBookForMutation(bookId);
+    if (error) {
+      return { success: false, error, data: [] };
+    }
 
     const keywords = query
       .split(/\s+/)
@@ -201,8 +417,6 @@ export const searchBookSegments = async (
       orderBy: { segmentIndex: "asc" },
       take: limit,
     });
-
-    console.log(`Search complete. Found ${segments.length} results`);
 
     return {
       success: true,

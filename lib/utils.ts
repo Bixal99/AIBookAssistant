@@ -85,9 +85,18 @@ export const getVoice = (persona?: string) => {
 
 // Format duration in seconds to MM:SS format
 export const formatDuration = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const total = Math.max(0, Math.floor(seconds || 0));
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
+
+/** Human-readable duration like "51s" or "2m 7s" */
+export const formatDurationLabel = (seconds: number): string => {
+  const total = Math.max(0, Math.floor(seconds || 0));
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
 };
 
 export async function parsePDFFile(file: File) {

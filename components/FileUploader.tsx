@@ -16,6 +16,7 @@ const FileUploader = <T extends FieldValues>({
     icon: Icon,
     placeholder,
     hint,
+    compact = false,
 }: FileUploadFieldProps<T>) => {
     const {
         field: { onChange, value },
@@ -47,12 +48,20 @@ const FileUploader = <T extends FieldValues>({
     const isUploaded = !!value;
 
     return (
-        <FormItem className="w-full">
-            <FormLabel className="form-label">{label}</FormLabel>
+        <FormItem className="flex h-full w-full flex-col">
+            <FormLabel
+              className={cn(
+                "font-medium text-[var(--landing-ink)]",
+                compact ? "mb-1.5 text-sm" : "form-label",
+              )}
+            >
+              {label}
+            </FormLabel>
             <FormControl>
                 <div
                     className={cn(
-                        'upload-dropzone border-2 border-dashed border-[#8B7355]/20',
+                        'upload-dropzone flex-1 border-2 border-dashed border-[var(--border-medium)]',
+                        compact && 'upload-dropzone-compact',
                         isUploaded && 'upload-dropzone-uploaded'
                     )}
                     onClick={() => !disabled && inputRef.current?.click()}
@@ -67,21 +76,21 @@ const FileUploader = <T extends FieldValues>({
                     />
 
                     {isUploaded ? (
-                        <div className="flex flex-col items-center relative w-full px-4">
+                        <div className="relative flex w-full flex-col items-center px-4">
                             <p className="upload-dropzone-text line-clamp-1">{(value as File).name}</p>
                             <button
                                 type="button"
                                 onClick={onRemove}
-                                className="upload-dropzone-remove mt-2"
+                                className="upload-dropzone-remove mt-1"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="h-4 w-4" />
                             </button>
                         </div>
                     ) : (
                         <>
-                            <Icon className="upload-dropzone-icon" />
-                            <p className="upload-dropzone-text">{placeholder}</p>
-                            <p className="upload-dropzone-hint">{hint}</p>
+                            <Icon className={cn("upload-dropzone-icon", compact && "mb-1 size-8")} />
+                            <p className={cn("upload-dropzone-text", compact && "text-sm")}>{placeholder}</p>
+                            <p className={cn("upload-dropzone-hint", compact && "mt-0.5 text-xs")}>{hint}</p>
                         </>
                     )}
                 </div>

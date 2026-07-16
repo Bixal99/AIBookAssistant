@@ -29,7 +29,7 @@ type SignUpFormProps = {
   callbackUrl?: string;
 };
 
-const SignUpForm = ({ callbackUrl = ROUTES.library }: SignUpFormProps) => {
+const SignUpForm = ({ callbackUrl = ROUTES.dashboard }: SignUpFormProps) => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);

@@ -11,6 +11,7 @@ import { UploadSchema } from "@/lib/zod";
 export interface IBook {
   _id: string;
   id: string;
+  userId: string;
   title: string;
   slug: string;
   author: string;
@@ -20,9 +21,13 @@ export interface IBook {
   coverURL?: string | null;
   coverBlobKey?: string | null;
   fileSize: number;
+  coverFileSize?: number;
   totalSegments: number;
   createdAt: Date | string;
   updatedAt: Date | string;
+  categories?: Array<{
+    category: { id: string; name: string; slug: string };
+  }>;
 }
 
 export interface IBookSegment {
@@ -41,6 +46,7 @@ export interface IVoiceSession {
   _id: string;
   id: string;
   bookId: string;
+  userId: string;
   startedAt: Date | string;
   endedAt?: Date | string | null;
   durationSeconds: number;
@@ -58,11 +64,13 @@ export interface CreateBook {
   title: string;
   author: string;
   persona?: string;
+  category?: string;
   fileURL: string;
   fileBlobKey: string;
   coverURL?: string;
   coverBlobKey?: string;
   fileSize: number;
+  coverFileSize?: number;
 }
 
 export interface TextSegment {
@@ -94,6 +102,7 @@ export interface VoiceSelectorProps {
   className?: string;
   value?: string;
   onChange: (voiceId: string) => void;
+  compact?: boolean;
 }
 
 export interface InputFieldProps<T extends FieldValues> {
@@ -113,6 +122,7 @@ export interface FileUploadFieldProps<T extends FieldValues> {
   icon: LucideIcon;
   placeholder: string;
   hint: string;
+  compact?: boolean;
 }
 
 export interface StartSessionResult {

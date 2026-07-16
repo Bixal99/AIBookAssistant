@@ -21,6 +21,11 @@ model User {
   banExpires    DateTime?
   sessions      Session[]
   accounts      Account[]
+  books         Book[]
+  voiceSessions VoiceSession[]
+  readingHistory ReadingHistory[]
+  profile       UserProfile?
+  notifications Notification[]
 
   @@unique([email])
   @@map("user")
@@ -77,8 +82,9 @@ model Verification {
 
 model Book {
   id            String   @id @default(cuid())
+  userId        String
   title         String
-  slug          String   @unique
+  slug          String
   author        String
   persona       String?
   fileURL       String
@@ -86,12 +92,19 @@ model Book {
   coverURL      String?
   coverBlobKey  String?
   fileSize      Int
+  coverFileSize Int      @default(0)
   totalSegments Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  segments      BookSegment[]
-  voiceSessions VoiceSession[]
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  segments       BookSegment[]
+  voiceSessions  VoiceSession[]
+  categories     BookCategory[]
+  readingHistory ReadingHistory[]
+
+  @@unique([userId, slug])
+  @@index([userId, createdAt])
 }
 
 model BookSegment {
@@ -114,6 +127,7 @@ model BookSegment {
 model VoiceSession {
   id              String    @id @default(cuid())
   bookId          String
+  userId          String
   startedAt       DateTime  @default(now())
   endedAt         DateTime?
   durationSeconds Int       @default(0)
@@ -121,6 +135,73 @@ model VoiceSession {
   updatedAt       DateTime  @updatedAt
 
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([bookId])
+  @@index([userId, startedAt])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  books BookCategory[]
+}
+
+model BookCategory {
+  bookId     String
+  categoryId String
+
+  book     Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, categoryId])
+  @@index([categoryId])
+}
+
+model ReadingHistory {
+  id           String   @id @default(cuid())
+  userId       String
+  bookId       String
+  lastOpenedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@index([userId, lastOpenedAt])
+}
+
+model UserProfile {
+  userId String  @id
+  bio    String?
+  theme  String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum NotificationType {
+  BOOK_UPLOADED
+  PDF_PROCESSED
+  VOICE_SESSION
+  NOTE_CREATED
+  BOOKMARK_CREATED
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String?
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt])
 }

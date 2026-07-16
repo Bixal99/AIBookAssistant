@@ -1,23 +1,20 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Navbar from "@/components/Navbar";
+
 import { ROUTES } from "@/lib/auth-constants";
 
-const SHELL_WITHOUT_NAV = new Set<string>([
+const PUBLIC_ONLY = new Set<string>([
   ROUTES.home,
   ROUTES.signIn,
   ROUTES.signUp,
 ]);
 
+/** Passthrough shell — authenticated chrome lives in `app/(app)/layout`. */
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hideNavbar = SHELL_WITHOUT_NAV.has(pathname);
-
-  return (
-    <>
-      {!hideNavbar && <Navbar />}
-      {children}
-    </>
-  );
+  // Keep a hook so this stays a client boundary for future public chrome.
+  void pathname;
+  void PUBLIC_ONLY;
+  return <>{children}</>;
 }

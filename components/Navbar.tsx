@@ -53,7 +53,7 @@ const Navbar = () => {
                 key={label}
                 className={cn(
                   "nav-link-base",
-                  isActive ? "nav-link-active" : "text-black hover:opacity-70",
+                  isActive ? "nav-link-active" : "text-[var(--landing-ink)] hover:opacity-70",
                 )}
               >
                 {label}

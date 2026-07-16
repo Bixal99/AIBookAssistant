@@ -2,6 +2,8 @@
 
 import { EndSessionResult, StartSessionResult } from "@/types";
 import { prisma } from "@/lib/db";
+import { getBookForMutation, requireAuthSession } from "@/lib/book-access";
+import { createNotification } from "@/lib/notifications";
 
 const DEFAULT_MAX_DURATION_MINUTES = 15;
 
@@ -9,9 +11,18 @@ export const startVoiceSession = async (
   bookId: string,
 ): Promise<StartSessionResult> => {
   try {
-    const session = await prisma.voiceSession.create({
+    const { error, session } = await getBookForMutation(bookId);
+    if (error || !session) {
+      return {
+        success: false,
+        error: error === "Unauthorized" ? "Please sign in." : "Book not found.",
+      };
+    }
+
+    const voiceSession = await prisma.voiceSession.create({
       data: {
         bookId,
+        userId: session.user.id,
         startedAt: new Date(),
         durationSeconds: 0,
       },
@@ -19,7 +30,7 @@ export const startVoiceSession = async (
 
     return {
       success: true,
-      sessionId: session.id,
+      sessionId: voiceSession.id,
       maxDurationMinutes: DEFAULT_MAX_DURATION_MINUTES,
     };
   } catch (e) {
@@ -36,7 +47,21 @@ export const endVoiceSession = async (
   durationSeconds: number,
 ): Promise<EndSessionResult> => {
   try {
-    const result = await prisma.voiceSession.updateMany({
+    const auth = await requireAuthSession();
+    if (!auth) {
+      return { success: false, error: "Please sign in." };
+    }
+
+    const existing = await prisma.voiceSession.findFirst({
+      where: { id: sessionId, userId: auth.user.id },
+      include: { book: { select: { title: true, slug: true } } },
+    });
+
+    if (!existing) {
+      return { success: false, error: "Voice session not found." };
+    }
+
+    await prisma.voiceSession.update({
       where: { id: sessionId },
       data: {
         endedAt: new Date(),
@@ -44,9 +69,16 @@ export const endVoiceSession = async (
       },
     });
 
-    if (result.count === 0) {
-      return { success: false, error: "Voice session not found." };
-    }
+    const mins = Math.floor(durationSeconds / 60);
+    const secs = Math.floor(durationSeconds % 60);
+    const durationLabel = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    await createNotification({
+      userId: auth.user.id,
+      type: "VOICE_SESSION",
+      title: "Voice session completed",
+      message: `Finished talking with "${existing.book.title}" (${durationLabel}).`,
+      link: `/books/${existing.book.slug}`,
+    });
 
     return { success: true };
   } catch (e) {

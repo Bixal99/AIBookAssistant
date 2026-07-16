@@ -2,8 +2,12 @@ export const ROUTES = {
   home: "/",
   signIn: "/sign-in",
   signUp: "/sign-up",
+  dashboard: "/dashboard",
   library: "/library",
   booksNew: "/books/new",
+  settings: "/settings",
+  admin: "/admin",
+  notifications: "/notifications",
 } as const;
 
 export const ROLES = {
@@ -17,7 +21,7 @@ export const AUTH_COPY = {
   brand: "BookBy",
   signIn: {
     headline: "Welcome back",
-    support: "Sign in to open your library and keep talking with your books.",
+    support: "Sign in to open your dashboard and keep talking with your books.",
     submit: "Sign in",
     switchPrompt: "New here?",
     switchLink: "Create an account",

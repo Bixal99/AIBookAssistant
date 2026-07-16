@@ -18,7 +18,7 @@ export default async function SignUpPage({ searchParams }: PageProps) {
   const safeCallback =
     callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")
       ? callbackUrl
-      : ROUTES.library;
+      : ROUTES.dashboard;
 
   return (
     <AuthShell

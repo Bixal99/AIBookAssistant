@@ -18,7 +18,7 @@
 
 ### Talk with your books — upload a PDF, then explore it through voice
 
-Next.js · PostgreSQL · Prisma · Vapi · Tailwind  
+Next.js · PostgreSQL · Prisma · Better Auth · Vapi · Tailwind  
 — one app that turns static reading into interactive conversation.
 
 <br/>
@@ -37,9 +37,9 @@ Next.js · PostgreSQL · Prisma · Vapi · Tailwind
 <br/>
 
 [![License](https://img.shields.io/badge/License-MIT-6B2A32?style=flat-square&logo=github)](#-license)
-[![UI](https://img.shields.io/badge/UI-Landing_+_Library-823440?style=flat-square)](#-features)
+[![UI](https://img.shields.io/badge/UI-Dashboard_+_Library-823440?style=flat-square)](#-features)
 [![Voice](https://img.shields.io/badge/Voice-Vapi-5C1F28?style=flat-square)](#-how-it-works)
-[![DB](https://img.shields.io/badge/DB-PostgreSQL_+_Prisma-4A1A22?style=flat-square)](#-tech-stack)
+[![Auth](https://img.shields.io/badge/Auth-Better_Auth-4A1A22?style=flat-square)](#-tech-stack)
 
 <br/>
 
@@ -56,7 +56,7 @@ Next.js · PostgreSQL · Prisma · Vapi · Tailwind
 ### Upload
 
 PDF ingestion · text extraction  
-segmentation · cover-ready library cards
+auto cover · ownership-scoped library
 
 </td>
 <td width="33%" align="center">
@@ -69,10 +69,10 @@ summaries · conversational follow-ups
 </td>
 <td width="33%" align="center">
 
-### Library
+### Dashboard
 
-Browse recent books · search  
-transcripts · warm literary UI
+Personal analytics · notifications  
+settings · literary light / dark theme
 
 </td>
 </tr>
@@ -81,11 +81,11 @@ transcripts · warm literary UI
 **Core flow**
 
 ```text
-Upload PDF  →  Extract + segment text  →  Store in PostgreSQL (Prisma)
-                                              ↓
-                    Open book page  →  Start Vapi voice session
-                                              ↓
-                         Ask · summarize · revisit transcripts
+Sign in  →  Upload PDF  →  Extract + segment text  →  Store in PostgreSQL (Prisma)
+                                                              ↓
+                         Dashboard / Library  →  Open book  →  Vapi voice session
+                                                              ↓
+                                    Ask · summarize · revisit transcripts
 ```
 
 <div align="center">
@@ -96,10 +96,12 @@ Upload PDF  →  Extract + segment text  →  Store in PostgreSQL (Prisma)
 flowchart LR
   subgraph Client
     Landing[Marketing Landing]
+    Dash[Dashboard]
     Library[Library UI]
     Chat[Book Voice Page]
   end
   subgraph App
+    Auth[Better Auth]
     Upload[Upload API]
     Actions[Book Actions]
   end
@@ -108,9 +110,11 @@ flowchart LR
   end
   subgraph External
     Vapi[Vapi Voice]
-    Blob[Blob Storage]
+    Blob[Vercel Blob]
   end
-  Landing -->|CTA| Library
+  Landing -->|sign in| Auth
+  Auth --> Dash
+  Dash --> Library
   Library -->|upload| Upload
   Upload --> Blob
   Upload --> Actions
@@ -130,7 +134,7 @@ sequenceDiagram
   participant Vapi
 
   User->>Next: Upload PDF
-  Next->>PG: Save book + segments
+  Next->>PG: Save owned book + segments
   User->>Next: Open book page
   Next->>Vapi: Start voice session
   User->>Vapi: Ask about the book
@@ -147,14 +151,16 @@ sequenceDiagram
 
 ## Overview
 
-BookBy is an **AI book companion** built for people who want a faster, more interactive way to understand long-form reading material.
+BookBy is an **AI book companion** for a faster, more interactive way to understand long-form reading material.
 
 Instead of treating a PDF as static text, the app:
 
-- Extracts book content and stores it in **PostgreSQL**
-- Lets you browse a warm **literary library**
+- Authenticates users with **Better Auth** (email/password)
+- Extracts book content and stores it in **PostgreSQL** under the owner’s account
+- Provides a **dashboard** with KPIs, charts, reading history, and activity notifications
+- Lets you browse a warm **literary library** (parchment light / charcoal dark)
 - Opens **Vapi-powered voice sessions** so you can ask questions out loud
-- Keeps **transcripts and summaries** so insights are easy to revisit
+- Keeps **transcripts** so insights are easy to revisit
 
 ---
 
@@ -166,15 +172,17 @@ Instead of treating a PDF as static text, the app:
 
 #### Ingestion
 
-- PDF upload and text extraction
-- Content segmentation for retrieval
-- Cover and slug-ready book records
+- PDF upload with progress stages
+- Text extraction and segmentation
+- Auto-generated cover from the first PDF page
+- Optional free-text categories
 
-#### Library UX
+#### Library & ownership
 
-- Recent books grid
-- Title / author search
-- Warm parchment theme (maroon accents on landing)
+- Per-user library (owner-scoped books)
+- Title / author / category search
+- Edit and delete your own titles
+- Unique slug per user
 
 </td>
 <td valign="top" width="50%">
@@ -183,13 +191,16 @@ Instead of treating a PDF as static text, the app:
 
 - Live voice Q&A through Vapi
 - Conversational follow-ups
-- Session transcripts
+- Session transcripts and duration tracking
 
 #### Product shell
 
-- Marketing landing with GSAP + Framer Motion
-- Upload flow at `/books/new`
-- Responsive Next.js + Tailwind UI
+- Marketing landing (GSAP + Framer Motion)
+- Authenticated app shell (sidebar, topbar, breadcrumbs)
+- Dashboard analytics and notifications
+- Settings (profile, theme preference)
+- Thin admin book list for admin emails
+- Literary light and dark themes
 
 </td>
 </tr>
@@ -199,13 +210,13 @@ Instead of treating a PDF as static text, the app:
 
 ## How It Works
 
-### Step 1 — Upload a PDF
+### Step 1 — Create an account
 
-Add a book from `/books/new`. BookBy extracts text and prepares segments for search and conversation.
+Sign up at `/sign-up`, then sign in. New sessions land on the dashboard.
 
-### Step 2 — AI processing & storage
+### Step 2 — Upload a PDF
 
-Content is saved with Prisma into PostgreSQL so the library, search, and voice tools share one source of truth.
+Add a book from `/books/new`. BookBy extracts text, segments content for retrieval, and generates a cover automatically.
 
 ### Step 3 — Voice chat
 
@@ -213,7 +224,7 @@ Open a book page and start a Vapi session. Ask questions, request summaries, and
 
 ### Step 4 — Revisit
 
-Return to your library, search titles, and review transcripts from earlier sessions.
+Return to your dashboard or library, search titles, check notifications, and review voice activity.
 
 ---
 
@@ -222,10 +233,11 @@ Return to your library, search titles, and review transcripts from earlier sessi
 | Layer | Tools |
 |-------|--------|
 | App | Next.js 16, React 19, TypeScript |
-| UI | Tailwind CSS, shadcn/ui, GSAP, Framer Motion |
+| Auth | Better Auth (email/password, `user` \| `admin` roles) |
+| UI | Tailwind CSS, shadcn/ui, GSAP, Framer Motion, Recharts |
 | Data | PostgreSQL, Prisma |
 | Voice | Vapi |
-| Media | Vercel Blob (optional), ElevenLabs (voice selection) |
+| Media | Vercel Blob, ElevenLabs (voice selection) |
 
 ---
 
@@ -234,24 +246,29 @@ Return to your library, search titles, and review transcripts from earlier sessi
 ```text
 AIBookAssistant/
 ├── app/
-│   ├── (root)/
-│   │   ├── page.tsx              # Marketing landing
-│   │   ├── library/page.tsx      # Library home
-│   │   └── books/new/page.tsx    # Upload flow
+│   ├── (root)/page.tsx           # Marketing landing
+│   ├── (app)/                    # Authenticated shell
+│   │   ├── dashboard/
+│   │   ├── library/
+│   │   ├── books/new/
+│   │   ├── settings/
+│   │   ├── notifications/
+│   │   └── admin/
 │   ├── books/[slug]/page.tsx     # Voice chat page
-│   ├── api/                      # Upload + Vapi routes
+│   ├── sign-in/ · sign-up/
+│   ├── api/                      # Auth, upload, Vapi routes
 │   ├── globals.css
 │   └── layout.tsx
 ├── components/
-│   ├── landing/                  # Landing navbar, hero, sections, footer
-│   ├── HeroSection.tsx           # In-app library hero
+│   ├── landing/                  # Landing sections
+│   ├── shell/                    # Sidebar, topbar, notifications
+│   ├── dashboard/ · charts/
 │   ├── UploadForm.tsx
 │   ├── VapiControls.tsx
 │   └── ...
-├── lib/                          # Actions, DB, utils, zod
+├── lib/                          # Auth, actions, analytics, DB, utils
 ├── prisma/                       # Schema + migrations
-├── public/
-│   └── assets/                   # Logo, hero illustration
+├── public/assets/
 └── package.json
 ```
 
@@ -318,36 +335,25 @@ npm run dev
 
 Then open [http://localhost:3000](http://localhost:3000).
 
-- `/` — marketing landing (public)  
-- `/sign-up` — create account  
-- `/sign-in` — sign in  
-- `/library` — book library (authenticated)  
-- `/books/new` — upload a PDF (authenticated)  
-
----
-
-## Future Improvements
-
-- Per-user libraries
-- Admin portal UI
-- OAuth (Google / GitHub), magic links, email verification, password reset
-- Bookmarking and notes for passages
-- Reading progress, goals, and streaks
-- Chapter-level navigation and outlines
-- Highlight export to Markdown / Notion
-- Multi-book comparison across titles
-- Personalized recommendations
-- Voice profiles per book or preference
-- Public sharing links for summaries
-- Offline mode for cached notes
-- Admin analytics for uploads and popular books
+| Route | Description |
+|-------|-------------|
+| `/` | Marketing landing (public) |
+| `/sign-up` · `/sign-in` | Create account / sign in |
+| `/dashboard` | Analytics home (authenticated) |
+| `/library` | Your books |
+| `/books/new` | Upload a PDF |
+| `/books/[slug]` | Voice companion for a book |
+| `/settings` | Profile and theme |
+| `/notifications` | Activity feed |
+| `/admin` | Admin book list (admin emails only) |
 
 ---
 
 ## Notes
 
 - The repository and package name are **BookBy**.
-- Authentication uses **Better Auth** (self-hosted, open source) with email/password and a `user` | `admin` role skeleton. MongoDB / Clerk are not used.
+- Authentication uses **Better Auth** (self-hosted, open source) with email/password and a `user` \| `admin` role. Clerk is not used.
+- Books are **owner-scoped**; each user only sees and manages their own library.
 - Some third-party environment variable names may still follow older integration naming — that is expected unless you rename them everywhere.
 
 ---
@@ -391,7 +397,7 @@ If you liked this project:
 
 <br/>
 
-<sub>BookBy · Next.js · TypeScript · Tailwind · PostgreSQL · Prisma · Vapi</sub>
+<sub>BookBy · Next.js · TypeScript · Tailwind · PostgreSQL · Prisma · Better Auth · Vapi</sub>
 
 <br/>
 
