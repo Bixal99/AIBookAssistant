@@ -1,78 +1,78 @@
-<div align="center">
 
-<!-- ═══════════════════════════════════════════════════════════
-     HERO BANNER — BookBy × maroon literary
-     ═══════════════════════════════════════════════════════════ -->
 
-<img
-  src="https://capsule-render.vercel.app/api?type=waving&color=6B2A32&height=220&section=header&text=BookBy&fontSize=70&fontColor=FFFFFF&animation=fadeIn&fontAlignY=35&desc=AI%20Book%20Companion%20%C2%B7%20Talk%20with%20your%20books&descAlignY=55&descSize=20"
-  alt="BookBy — AI Book Companion"
-  width="100%"
-/>
 
-<br/>
 
-<img src="public/assets/logo-mark.png" alt="BookBy logo" width="96" />
 
-<br/>
+
+  
+
+
+
+
+  
+
 
 ### Talk with your books — upload a PDF, then explore it through voice
 
 Next.js · PostgreSQL · Prisma · Better Auth · Vapi · Tailwind  
 — one app that turns static reading into interactive conversation.
 
-<br/>
+  
 
-![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![Vapi](https://img.shields.io/badge/Vapi-6B2A32?style=for-the-badge&logoColor=white)
 
-<br/>
+Next.js
+TypeScript
+Tailwind
+PostgreSQL
+Prisma
+Vapi
 
-[![License](https://img.shields.io/badge/License-MIT-6B2A32?style=flat-square&logo=github)](#-license)
-[![UI](https://img.shields.io/badge/UI-Dashboard_+_Library-823440?style=flat-square)](#-features)
-[![Voice](https://img.shields.io/badge/Voice-Vapi-5C1F28?style=flat-square)](#-how-it-works)
-[![Auth](https://img.shields.io/badge/Auth-Better_Auth-4A1A22?style=flat-square)](#-tech-stack)
 
-<br/>
 
-</div>
+[License](#-license)
+[UI](#-features)
+[Voice](#-how-it-works)
+[Auth](#-tech-stack)
+
+  
+
+
+
 
 ---
 
+
+
 ## At a Glance
 
-<table>
-<tr>
-<td width="33%" align="center">
+
+|     |
+| --- |
+|     |
+
+
+
 
 ### Upload
 
 PDF to Vercel Blob · open chat immediately  
 text indexed in the background
 
-</td>
-<td width="33%" align="center">
+
 
 ### Voice
 
 Vapi live sessions · ask questions  
 summaries · searchable book segments
 
-</td>
-<td width="33%" align="center">
+
 
 ### Dashboard
 
 KPIs · charts · reading history  
 notifications · light / dark literary theme
 
-</td>
-</tr>
-</table>
+
 
 **Core flow**
 
@@ -84,7 +84,7 @@ Sign in  →  Upload PDF  →  Save book  →  Open voice chat immediately
                     Dashboard / Library  →  Continue reading · voice history
 ```
 
-<div align="center">
+
 
 ### System Architecture
 
@@ -120,6 +120,10 @@ flowchart LR
   Vapi -->|search tool| Actions
 ```
 
+
+
+
+
 ### Voice Session Sequence
 
 ```mermaid
@@ -143,9 +147,13 @@ sequenceDiagram
   Vapi-->>User: Spoken answer
 ```
 
-</div>
+
+
+
 
 ---
+
+
 
 ## Overview
 
@@ -163,11 +171,17 @@ Instead of treating a PDF as static text, the app:
 
 ---
 
+
+
 ## Features
 
-<table>
-<tr>
-<td valign="top" width="50%">
+
+|     |
+| --- |
+|     |
+
+
+
 
 #### Ingestion
 
@@ -177,6 +191,8 @@ Instead of treating a PDF as static text, the app:
 - Optional free-text categories
 - Selectable assistant voices (persona)
 
+
+
 #### Library & ownership
 
 - Per-user library (owner-scoped books)
@@ -184,8 +200,7 @@ Instead of treating a PDF as static text, the app:
 - Edit and delete your own titles
 - Unique slug per user
 
-</td>
-<td valign="top" width="50%">
+
 
 #### Voice & AI
 
@@ -193,6 +208,8 @@ Instead of treating a PDF as static text, the app:
 - Segment search tool for grounded answers
 - Session transcripts and duration tracking
 - Reading history recorded on open
+
+
 
 #### Product shell
 
@@ -204,13 +221,15 @@ Instead of treating a PDF as static text, the app:
 - Admin book list for emails in `ADMIN_EMAILS`
 - Literary light and dark themes
 
-</td>
-</tr>
-</table>
+
 
 ---
 
+
+
 ## How It Works
+
+
 
 ### Step 1 — Create an account
 
@@ -234,18 +253,24 @@ Add your email to `ADMIN_EMAILS` in `.env` (role is set on **new** sign-up). Exi
 
 ---
 
+
+
 ## Tech Stack
 
-| Layer | Tools |
-|-------|--------|
-| App | Next.js 16, React 19, TypeScript |
-| Auth | Better Auth (email/password, `user` \| `admin` roles) |
-| UI | Tailwind CSS v4, shadcn/ui, GSAP, Framer Motion, Recharts |
-| Data | PostgreSQL, Prisma |
-| Voice | Vapi |
-| Media | Vercel Blob |
+
+| Layer | Tools                                                     |
+| ----- | --------------------------------------------------------- |
+| App   | Next.js 16, React 19, TypeScript                          |
+| Auth  | Better Auth (email/password, `user` | `admin` roles)      |
+| UI    | Tailwind CSS v4, shadcn/ui, GSAP, Framer Motion, Recharts |
+| Data  | PostgreSQL, Prisma                                        |
+| Voice | Vapi                                                      |
+| Media | Vercel Blob                                               |
+
 
 ---
+
+
 
 ## Project Structure
 
@@ -280,7 +305,11 @@ AIBookAssistant/
 
 ---
 
+
+
 ## First-Time Setup
+
+
 
 ### 1. Clone repository
 
@@ -289,11 +318,15 @@ git clone <your-repo-url>
 cd AIBookAssistant
 ```
 
+
+
 ### 2. Install dependencies
 
 ```bash
 npm install
 ```
+
+
 
 ### 3. Environment
 
@@ -318,6 +351,8 @@ VAPI_SERVER_SECRET=
 NEXT_PUBLIC_ASSISTANT_ID=
 ```
 
+
+
 ### 4. Database
 
 Prerequisites: Node.js 18+, npm, PostgreSQL (Docker container `bookby-pg` on host port `5433`, or any Postgres you manage).
@@ -329,6 +364,8 @@ npx prisma migrate deploy
 
 ---
 
+
+
 ## Run The Application
 
 ```bash
@@ -337,30 +374,38 @@ npm run dev
 
 Then open [http://localhost:3000](http://localhost:3000).
 
-| Route | Description |
-|-------|-------------|
-| `/` | Marketing landing (public) |
-| `/sign-up` · `/sign-in` | Create account / sign in |
-| `/dashboard` | Analytics home (authenticated) |
-| `/library` | Your books |
-| `/books/new` | Upload a PDF |
-| `/books/[slug]` | Voice companion for a book |
-| `/settings` | Profile, password, and theme |
-| `/notifications` | Activity feed |
-| `/admin` | All books across users (admins only) |
+
+| Route                   | Description                          |
+| ----------------------- | ------------------------------------ |
+| `/`                     | Marketing landing (public)           |
+| `/sign-up` · `/sign-in` | Create account / sign in             |
+| `/dashboard`            | Analytics home (authenticated)       |
+| `/library`              | Your books                           |
+| `/books/new`            | Upload a PDF                         |
+| `/books/[slug]`         | Voice companion for a book           |
+| `/settings`             | Profile, password, and theme         |
+| `/notifications`        | Activity feed                        |
+| `/admin`                | All books across users (admins only) |
+
 
 ---
+
+
 
 ## Notes
 
 - The repository and package name are **BookBy**.
-- Authentication uses **Better Auth** (self-hosted) with email/password and a `user` \| `admin` role.
+- Authentication uses **Better Auth** (self-hosted) with email/password and a `user`  `admin` role.
 - Books are **owner-scoped**; each user only sees and manages their own library (admins can list all books).
 - PDF text indexing runs **after** you enter chat so upload feels fast; voice search works once indexing finishes.
 
 ---
 
+
+
 ## Author
+
+
 
 ### Mohammad Bilal
 
@@ -369,11 +414,15 @@ AI + Full Stack Developer
 
 ---
 
+
+
 ## License
 
 This project is licensed under the MIT License.
 
 ---
+
+
 
 ## Support
 
@@ -385,20 +434,17 @@ If you liked this project:
 
 ---
 
-<div align="center">
 
-<img
-  src="https://capsule-render.vercel.app/api?type=waving&color=6B2A32&height=120&section=footer&text=Built%20with%20Next.js%20%2B%20Vapi%20%2B%20Prisma&fontSize=18&fontColor=FFFFFF&fontAlignY=65"
-  alt="Built with Next.js + Vapi + Prisma"
-  width="100%"
-/>
 
-<br/>
+
+
+  
+
 
 **[Back to top](#at-a-glance)**
 
-<br/>
+  
 
-<sub>BookBy · Next.js · TypeScript · Tailwind · PostgreSQL · Prisma · Better Auth · Vapi</sub>
 
-</div>
+BookBy · Next.js · TypeScript · Tailwind · PostgreSQL · Prisma · Better Auth · Vapi
+
