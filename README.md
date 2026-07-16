@@ -23,10 +23,6 @@ Next.js · PostgreSQL · Prisma · Better Auth · Vapi · Tailwind
 
 <br/>
 
-<!-- ═══════════════════════════════════════════════════════════
-     STICKER / BADGE STRIP
-     ═══════════════════════════════════════════════════════════ -->
-
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
@@ -55,8 +51,8 @@ Next.js · PostgreSQL · Prisma · Better Auth · Vapi · Tailwind
 
 ### Upload
 
-PDF ingestion · text extraction  
-auto cover · ownership-scoped library
+PDF to Vercel Blob · open chat immediately  
+text indexed in the background
 
 </td>
 <td width="33%" align="center">
@@ -64,15 +60,15 @@ auto cover · ownership-scoped library
 ### Voice
 
 Vapi live sessions · ask questions  
-summaries · conversational follow-ups
+summaries · searchable book segments
 
 </td>
 <td width="33%" align="center">
 
 ### Dashboard
 
-Personal analytics · notifications  
-settings · literary light / dark theme
+KPIs · charts · reading history  
+notifications · light / dark literary theme
 
 </td>
 </tr>
@@ -81,11 +77,11 @@ settings · literary light / dark theme
 **Core flow**
 
 ```text
-Sign in  →  Upload PDF  →  Extract + segment text  →  Store in PostgreSQL (Prisma)
-                                                              ↓
-                         Dashboard / Library  →  Open book  →  Vapi voice session
-                                                              ↓
-                                    Ask · summarize · revisit transcripts
+Sign in  →  Upload PDF  →  Save book  →  Open voice chat immediately
+                                              ↓
+                         Index segments in background (for search)
+                                              ↓
+                    Dashboard / Library  →  Continue reading · voice history
 ```
 
 <div align="center">
@@ -130,13 +126,15 @@ flowchart LR
 sequenceDiagram
   participant User
   participant Next as Next.js
+  participant Blob as Vercel Blob
   participant PG as PostgreSQL
   participant Vapi
 
   User->>Next: Upload PDF
-  Next->>PG: Save owned book + segments
-  User->>Next: Open book page
-  Next->>Vapi: Start voice session
+  Next->>Blob: Store PDF
+  Next->>PG: Create owned book
+  Next-->>User: Open voice chat
+  Next->>PG: Index segments (background)
   User->>Vapi: Ask about the book
   Vapi->>Next: Search / retrieve context
   Next->>PG: Query segments
@@ -155,12 +153,13 @@ BookBy is an **AI book companion** for a faster, more interactive way to underst
 
 Instead of treating a PDF as static text, the app:
 
-- Authenticates users with **Better Auth** (email/password)
-- Extracts book content and stores it in **PostgreSQL** under the owner’s account
-- Provides a **dashboard** with KPIs, charts, reading history, and activity notifications
+- Authenticates users with **Better Auth** (email/password, `user` / `admin` roles)
+- Stores owned books in **PostgreSQL** (Prisma) and PDFs in **Vercel Blob**
+- Opens the **voice chat page as soon as upload finishes**; segment indexing continues in the background
+- Provides a **dashboard** with KPIs, Recharts analytics, continue-reading, voice history, and notifications
 - Lets you browse a warm **literary library** (parchment light / charcoal dark)
-- Opens **Vapi-powered voice sessions** so you can ask questions out loud
-- Keeps **transcripts** so insights are easy to revisit
+- Runs **Vapi-powered voice sessions** so you can ask questions out loud
+- Keeps **session duration** and **transcripts** for revisit
 
 ---
 
@@ -172,10 +171,11 @@ Instead of treating a PDF as static text, the app:
 
 #### Ingestion
 
-- PDF upload with progress stages
-- Text extraction and segmentation
-- Auto-generated cover from the first PDF page
+- PDF upload with staged progress UI
+- Immediate redirect to the book voice page
+- Background text extraction and segmentation
 - Optional free-text categories
+- Selectable assistant voices (persona)
 
 #### Library & ownership
 
@@ -190,16 +190,18 @@ Instead of treating a PDF as static text, the app:
 #### Voice & AI
 
 - Live voice Q&A through Vapi
-- Conversational follow-ups
+- Segment search tool for grounded answers
 - Session transcripts and duration tracking
+- Reading history recorded on open
 
 #### Product shell
 
 - Marketing landing (GSAP + Framer Motion)
-- Authenticated app shell (sidebar, topbar, breadcrumbs)
-- Dashboard analytics and notifications
-- Settings (profile, theme preference)
-- Thin admin book list for admin emails
+- Authenticated shell (sidebar, topbar, breadcrumbs)
+- Dashboard analytics (per-chart time ranges)
+- Notifications (upload, PDF processed, voice session)
+- Settings (profile, password, theme)
+- Admin book list for emails in `ADMIN_EMAILS`
 - Literary light and dark themes
 
 </td>
@@ -216,15 +218,19 @@ Sign up at `/sign-up`, then sign in. New sessions land on the dashboard.
 
 ### Step 2 — Upload a PDF
 
-Add a book from `/books/new`. BookBy extracts text, segments content for retrieval, and generates a cover automatically.
+Add a book from `/books/new`. After the PDF is stored and the book row is created, BookBy opens the chat page right away. Text indexing for voice search finishes in the background (you get a notification when it is ready).
 
 ### Step 3 — Voice chat
 
-Open a book page and start a Vapi session. Ask questions, request summaries, and explore ideas at conversation speed.
+On `/books/[slug]`, start a Vapi session. Ask questions, request summaries, and explore ideas at conversation speed.
 
 ### Step 4 — Revisit
 
-Return to your dashboard or library, search titles, check notifications, and review voice activity.
+Return to the dashboard or library: continue reading, scroll recent books, check voice sessions and notifications, and switch theme in settings.
+
+### Admin
+
+Add your email to `ADMIN_EMAILS` in `.env` (role is set on **new** sign-up). Existing users need `role = admin` in the database, then sign out and back in. Open `/admin` or use the Admin item in the sidebar.
 
 ---
 
@@ -234,10 +240,10 @@ Return to your dashboard or library, search titles, check notifications, and rev
 |-------|--------|
 | App | Next.js 16, React 19, TypeScript |
 | Auth | Better Auth (email/password, `user` \| `admin` roles) |
-| UI | Tailwind CSS, shadcn/ui, GSAP, Framer Motion, Recharts |
+| UI | Tailwind CSS v4, shadcn/ui, GSAP, Framer Motion, Recharts |
 | Data | PostgreSQL, Prisma |
 | Voice | Vapi |
-| Media | Vercel Blob, ElevenLabs (voice selection) |
+| Media | Vercel Blob |
 
 ---
 
@@ -310,10 +316,6 @@ BLOB_READ_WRITE_TOKEN=
 NEXT_PUBLIC_VAPI_API_KEY=
 VAPI_SERVER_SECRET=
 NEXT_PUBLIC_ASSISTANT_ID=
-
-GOOGLE_GEMINI_API_KEY=
-ELEVENLABS_API_KEY=
-UPLOAD_DIR=uploads
 ```
 
 ### 4. Database
@@ -343,18 +345,18 @@ Then open [http://localhost:3000](http://localhost:3000).
 | `/library` | Your books |
 | `/books/new` | Upload a PDF |
 | `/books/[slug]` | Voice companion for a book |
-| `/settings` | Profile and theme |
+| `/settings` | Profile, password, and theme |
 | `/notifications` | Activity feed |
-| `/admin` | Admin book list (admin emails only) |
+| `/admin` | All books across users (admins only) |
 
 ---
 
 ## Notes
 
 - The repository and package name are **BookBy**.
-- Authentication uses **Better Auth** (self-hosted, open source) with email/password and a `user` \| `admin` role. Clerk is not used.
-- Books are **owner-scoped**; each user only sees and manages their own library.
-- Some third-party environment variable names may still follow older integration naming — that is expected unless you rename them everywhere.
+- Authentication uses **Better Auth** (self-hosted) with email/password and a `user` \| `admin` role.
+- Books are **owner-scoped**; each user only sees and manages their own library (admins can list all books).
+- PDF text indexing runs **after** you enter chat so upload feels fast; voice search works once indexing finishes.
 
 ---
 
@@ -398,9 +400,5 @@ If you liked this project:
 <br/>
 
 <sub>BookBy · Next.js · TypeScript · Tailwind · PostgreSQL · Prisma · Better Auth · Vapi</sub>
-
-<br/>
-
-# Built with Next.js + Vapi + Prisma
 
 </div>
