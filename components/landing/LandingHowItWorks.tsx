@@ -34,35 +34,45 @@ const LandingHowItWorks = () => {
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
+      const heading = sectionRef.current?.querySelector(".how-heading");
+      const steps = sectionRef.current?.querySelectorAll(".how-step");
+
+      if (!heading || !steps?.length) return;
+
       if (reduceMotion) {
-        gsap.set([".how-heading", ".how-step"], { opacity: 1, y: 0 });
+        gsap.set([heading, steps], { opacity: 1, y: 0 });
         return;
       }
 
-      gsap.from(".how-heading", {
-        opacity: 0,
-        y: 32,
-        duration: 0.7,
+      gsap.set(heading, { opacity: 0, y: 40 });
+      gsap.set(steps, { opacity: 0, y: 48 });
+
+      gsap.to(heading, {
+        opacity: 1,
+        y: 0,
+        duration: 0.75,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top 80%",
-          once: true,
+          toggleActions: "play none none none",
         },
       });
 
-      gsap.from(".how-step", {
-        opacity: 0,
-        y: 36,
-        duration: 0.65,
-        stagger: 0.14,
+      gsap.to(steps, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.16,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 75%",
-          once: true,
+          start: "top 72%",
+          toggleActions: "play none none none",
         },
       });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     },
     { scope: sectionRef },
   );
@@ -91,7 +101,7 @@ const LandingHowItWorks = () => {
           {STEPS.map(({ num, title, detail }) => (
             <li
               key={num}
-              className="how-step rounded-2xl border border-white/15 bg-white/5 p-6 backdrop-blur-sm"
+              className="how-step cursor-default rounded-2xl border border-white/15 bg-white/5 p-6 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1 hover:bg-white/10"
             >
               <span className="font-serif text-3xl font-bold text-white/40">
                 {num}

@@ -7,14 +7,18 @@ import { motion } from "framer-motion";
 const centerLinks = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Features", href: "#features" },
+  { label: "Voice", href: "#voice" },
   { label: "Library", href: "/library" },
 ];
 
 const LandingNavbar = () => {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-[color-mix(in_srgb,var(--landing-maroon)_22%,transparent)] bg-[var(--landing-parchment)]">
-      <div className="wrapper navbar-height grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-4">
-        <Link href="/" className="flex items-center gap-2 justify-self-start">
+      <div className="wrapper navbar-height grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-4 sm:gap-4">
+        <Link
+          href="/"
+          className="flex cursor-pointer items-center gap-2 justify-self-start"
+        >
           <Image
             src="/assets/logo-mark.png"
             alt="BookBy"
@@ -26,12 +30,19 @@ const LandingNavbar = () => {
           <span className="logo-text">BookBy</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
+        <nav
+          className="hidden items-center gap-5 lg:flex lg:gap-7"
+          aria-label="Primary"
+        >
           {centerLinks.map(({ label, href }) => (
-            <motion.div key={label} className="relative" whileHover="hover">
+            <motion.div
+              key={label}
+              className="relative cursor-pointer"
+              whileHover="hover"
+            >
               <Link
                 href={href}
-                className="nav-link-base text-[var(--landing-ink)] hover:text-[var(--landing-maroon)]"
+                className="nav-link-base cursor-pointer text-[var(--landing-ink)] hover:text-[var(--landing-maroon)]"
               >
                 {label}
               </Link>
@@ -47,12 +58,13 @@ const LandingNavbar = () => {
 
         <motion.div
           className="justify-self-end"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.05, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+          transition={{ type: "spring", stiffness: 420, damping: 22 }}
         >
           <Link
             href="/books/new"
-            className="inline-flex items-center justify-center rounded-[10px] bg-[var(--landing-maroon)] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[var(--landing-maroon-hover)] sm:px-5"
+            className="inline-flex cursor-pointer items-center justify-center rounded-[10px] bg-[var(--landing-maroon)] px-4 py-2.5 text-sm font-bold text-white shadow-[var(--shadow-soft-sm)] transition-colors hover:bg-[var(--landing-maroon-hover)] hover:shadow-[var(--shadow-soft-md)] sm:px-5"
             style={{ fontFamily: "var(--font-ibm-plex-serif), serif" }}
           >
             Start with a book
@@ -61,14 +73,14 @@ const LandingNavbar = () => {
       </div>
 
       <nav
-        className="flex items-center justify-center gap-5 border-t border-[color-mix(in_srgb,var(--landing-maroon)_15%,transparent)] px-5 py-2 md:hidden"
+        className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t border-[color-mix(in_srgb,var(--landing-maroon)_15%,transparent)] px-4 py-2 lg:hidden"
         aria-label="Mobile"
       >
         {centerLinks.map(({ label, href }) => (
           <Link
             key={label}
             href={href}
-            className="text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--landing-maroon)]"
+            className="cursor-pointer text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--landing-maroon)]"
           >
             {label}
           </Link>

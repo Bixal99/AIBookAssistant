@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import LandingButton from "@/components/landing/LandingButton";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -17,22 +17,29 @@ const LandingVoice = () => {
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
+      const content = sectionRef.current?.querySelector(".voice-content");
+      if (!content) return;
+
       if (reduceMotion) {
-        gsap.set(".voice-content", { opacity: 1, y: 0 });
+        gsap.set(content, { opacity: 1, y: 0 });
         return;
       }
 
-      gsap.from(".voice-content", {
-        opacity: 0,
-        y: 36,
-        duration: 0.8,
+      gsap.set(content, { opacity: 0, y: 48 });
+
+      gsap.to(content, {
+        opacity: 1,
+        y: 0,
+        duration: 0.85,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 80%",
-          once: true,
+          start: "top 78%",
+          toggleActions: "play none none none",
         },
       });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     },
     { scope: sectionRef },
   );
@@ -59,15 +66,10 @@ const LandingVoice = () => {
               speed.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/books/new" className="btn-landing">
-                Start with a book
-              </Link>
-              <Link
-                href="/library"
-                className="inline-flex items-center justify-center rounded-[10px] border border-[color-mix(in_srgb,var(--landing-maroon)_35%,transparent)] bg-white/80 px-6 py-3 font-medium text-[var(--landing-ink)] transition-colors hover:bg-white"
-              >
+              <LandingButton href="/books/new">Start with a book</LandingButton>
+              <LandingButton href="/library" variant="secondary">
                 Open your library
-              </Link>
+              </LandingButton>
             </div>
           </div>
         </div>

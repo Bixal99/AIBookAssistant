@@ -46,7 +46,7 @@ const LandingFooter = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
           >
-            <Link href="/" className="inline-flex items-center gap-2">
+            <Link href="/" className="inline-flex cursor-pointer items-center gap-2">
               <Image
                 src="/assets/logo-mark.png"
                 alt="BookBy"
@@ -78,7 +78,7 @@ const LandingFooter = () => {
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-sm font-medium text-[var(--landing-ink)] transition-opacity hover:opacity-70"
+                    className="cursor-pointer text-sm font-medium text-[var(--landing-ink)] transition-all hover:text-[var(--landing-maroon)] hover:underline"
                   >
                     {label}
                   </Link>
@@ -103,7 +103,7 @@ const LandingFooter = () => {
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-sm font-medium text-[var(--landing-ink)] transition-opacity hover:opacity-70"
+                    className="cursor-pointer text-sm font-medium text-[var(--landing-ink)] transition-all hover:text-[var(--landing-maroon)] hover:underline"
                   >
                     {label}
                   </Link>
@@ -130,7 +130,7 @@ const LandingFooter = () => {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-[var(--landing-ink)] transition-opacity hover:opacity-70"
+                    className="cursor-pointer text-sm font-medium text-[var(--landing-ink)] transition-all hover:text-[var(--landing-maroon)] hover:underline"
                   >
                     {label}
                   </a>

@@ -2,9 +2,9 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import LandingButton from "@/components/landing/LandingButton";
 
 gsap.registerPlugin(useGSAP);
 
@@ -104,15 +104,10 @@ const LandingHero = () => {
               and conversation in one place.
             </p>
             <div className="landing-ctas mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/books/new" className="btn-landing">
-                Start with a book
-              </Link>
-              <Link
-                href="/library"
-                className="inline-flex items-center justify-center rounded-[10px] border border-[var(--border-medium)] bg-white/70 px-6 py-3 font-medium text-[var(--text-secondary)] transition-colors hover:bg-white"
-              >
+              <LandingButton href="/books/new">Start with a book</LandingButton>
+              <LandingButton href="/library" variant="secondary">
                 Browse library
-              </Link>
+              </LandingButton>
             </div>
           </div>
 

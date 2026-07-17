@@ -4,6 +4,7 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion } from "framer-motion";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -43,38 +44,45 @@ const LandingFeatures = () => {
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
+      const heading = sectionRef.current?.querySelector(".features-heading");
+      const cards = sectionRef.current?.querySelectorAll(".feature-card");
+
+      if (!heading || !cards?.length) return;
+
       if (reduceMotion) {
-        gsap.set([".features-heading", ".feature-card"], {
-          opacity: 1,
-          y: 0,
-        });
+        gsap.set([heading, cards], { opacity: 1, y: 0 });
         return;
       }
 
-      gsap.from(".features-heading", {
-        opacity: 0,
-        y: 28,
-        duration: 0.7,
+      gsap.set(heading, { opacity: 0, y: 36 });
+      gsap.set(cards, { opacity: 0, y: 44 });
+
+      gsap.to(heading, {
+        opacity: 1,
+        y: 0,
+        duration: 0.75,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top 80%",
-          once: true,
+          toggleActions: "play none none none",
         },
       });
 
-      gsap.from(".feature-card", {
-        opacity: 0,
-        y: 32,
-        duration: 0.6,
-        stagger: 0.1,
+      gsap.to(cards, {
+        opacity: 1,
+        y: 0,
+        duration: 0.65,
+        stagger: 0.12,
         ease: "power3.out",
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 75%",
-          once: true,
+          start: "top 70%",
+          toggleActions: "play none none none",
         },
       });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     },
     { scope: sectionRef },
   );
@@ -103,9 +111,16 @@ const LandingFeatures = () => {
 
           <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ title, detail }) => (
-              <li
+              <motion.li
                 key={title}
-                className="feature-card rounded-2xl border border-[var(--border-subtle)] bg-[var(--landing-parchment-deep)]/60 p-6 shadow-[var(--shadow-soft-sm)]"
+                className="feature-card cursor-default rounded-2xl border border-[var(--border-subtle)] bg-[var(--landing-parchment-deep)]/60 p-6 shadow-[var(--shadow-soft-sm)]"
+                whileHover={{
+                  y: -6,
+                  scale: 1.02,
+                  boxShadow: "0 8px 24px rgba(107, 42, 50, 0.12)",
+                  borderColor: "rgba(107, 42, 50, 0.35)",
+                }}
+                transition={{ type: "spring", stiffness: 380, damping: 24 }}
               >
                 <div className="mb-4 h-1 w-10 rounded-full bg-[var(--landing-maroon)]" />
                 <h3 className="font-serif text-xl font-semibold text-[var(--landing-ink)]">
@@ -114,7 +129,7 @@ const LandingFeatures = () => {
                 <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
                   {detail}
                 </p>
-              </li>
+              </motion.li>
             ))}
           </ul>
         </div>

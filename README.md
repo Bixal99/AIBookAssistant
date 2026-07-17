@@ -37,7 +37,7 @@ Next.js · PostgreSQL · Prisma · Vapi · Tailwind
 <br/>
 
 [![License](https://img.shields.io/badge/License-MIT-6B2A32?style=flat-square&logo=github)](#-license)
-[![UI](https://img.shields.io/badge/UI-Landing_+_Library-823440?style=flat-square)](#-application-preview)
+[![UI](https://img.shields.io/badge/UI-Landing_+_Library-823440?style=flat-square)](#-features)
 [![Voice](https://img.shields.io/badge/Voice-Vapi-5C1F28?style=flat-square)](#-how-it-works)
 [![DB](https://img.shields.io/badge/DB-PostgreSQL_+_Prisma-4A1A22?style=flat-square)](#-tech-stack)
 
@@ -197,24 +197,6 @@ Instead of treating a PDF as static text, the app:
 
 ---
 
-## Application Preview
-
-### Landing
-
-Marketing home with parchment hero, maroon section bands, and voice CTA.
-
-![BookBy landing](public/readme/readme-hero-new.webp)
-
-### Library & product
-
-Browse uploads, open a book, and start a voice conversation.
-
-<p align="center">
-  <img src="public/readme/module-thumb.webp" alt="BookBy module thumbnail" width="70%" />
-</p>
-
----
-
 ## How It Works
 
 ### Step 1 — Upload a PDF
@@ -269,8 +251,7 @@ AIBookAssistant/
 ├── lib/                          # Actions, DB, utils, zod
 ├── prisma/                       # Schema + migrations
 ├── public/
-│   ├── assets/                   # Logo, hero illustration
-│   └── readme/                   # README imagery
+│   └── assets/                   # Logo, hero illustration
 └── package.json
 ```
 

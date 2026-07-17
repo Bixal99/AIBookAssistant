@@ -309,16 +309,16 @@
   }
 
   /* Button utilities */
+  .btn-landing {
+    @apply inline-flex cursor-pointer items-center justify-center px-6 py-3 bg-[var(--landing-maroon)] hover:bg-[var(--landing-maroon-hover)] text-white font-bold rounded-[10px] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-soft-md)];
+    font-family: 'IBM Plex Serif', serif;
+  }
   .btn-primary {
-    @apply inline-flex items-center justify-center px-6 py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold rounded-[10px] transition-colors;
+    @apply inline-flex cursor-pointer items-center justify-center px-6 py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white font-bold rounded-[10px] transition-colors;
     font-family: 'IBM Plex Serif', serif;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-50 text-[var(--text-secondary)] font-medium rounded-[10px] transition-colors;
-  }
-  .btn-landing {
-    @apply inline-flex items-center justify-center px-6 py-3 bg-[var(--landing-maroon)] hover:bg-[var(--landing-maroon-hover)] text-white font-bold rounded-[10px] transition-colors;
-    font-family: 'IBM Plex Serif', serif;
+    @apply inline-flex cursor-pointer items-center justify-center px-6 py-3 bg-white hover:bg-gray-50 text-[var(--text-secondary)] font-medium rounded-[10px] transition-colors;
   }
   .landing-section {
     @apply relative py-16 md:py-24;
@@ -368,7 +368,7 @@
     @apply font-semibold text-xl hidden sm:block text-black;
   }
   .nav-link-base {
-    @apply text-base font-medium leading-6 transition-all;
+    @apply cursor-pointer text-base font-medium leading-6 transition-all;
   }
   .nav-link-active {
     @apply text-[var(--color-brand)] border-b-2 border-[var(--color-brand)] pb-0.5;
