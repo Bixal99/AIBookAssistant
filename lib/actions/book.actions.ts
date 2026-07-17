@@ -1,233 +1,219 @@
 'use server';
 
-import {CreateBook, TextSegment} from "@/types";
-import {connectToDatabase} from "@/database/mongoose";
-import {escapeRegex, generateSlug, serializeData} from "@/lib/utils";
-import Book from "@/database/models/book.model";
-import BookSegment from "@/database/models/book-segment.model";
-import mongoose from "mongoose";
-import {getUserPlan} from "@/lib/subscription.server";
+import { CreateBook, TextSegment } from "@/types";
+import { generateSlug, serializeData } from "@/lib/utils";
+import { prisma } from "@/lib/db";
+import type { Book, BookSegment } from "@prisma/client";
+
+type BookWithId = Book & { _id: string };
+type SegmentWithId = BookSegment & { _id: string };
+
+const withBookId = (book: Book): BookWithId => ({
+  ...book,
+  _id: book.id,
+});
+
+const withSegmentId = (segment: BookSegment): SegmentWithId => ({
+  ...segment,
+  _id: segment.id,
+});
 
 export const getAllBooks = async (search?: string) => {
-    try {
-        await connectToDatabase();
+  try {
+    const query = search?.trim();
 
-        let query = {};
+    const books = await prisma.book.findMany({
+      where: query
+        ? {
+            OR: [
+              { title: { contains: query, mode: "insensitive" } },
+              { author: { contains: query, mode: "insensitive" } },
+            ],
+          }
+        : undefined,
+      orderBy: { createdAt: "desc" },
+    });
 
-        if (search) {
-            const escapedSearch = escapeRegex(search);
-            const regex = new RegExp(escapedSearch, 'i');
-            query = {
-                $or: [
-                    { title: { $regex: regex } },
-                    { author: { $regex: regex } },
-                ]
-            };
-        }
-
-        const books = await Book.find(query).sort({ createdAt: -1 }).lean();
-
-        return {
-            success: true,
-            data: serializeData(books)
-        }
-    } catch (e) {
-        console.error('Error connecting to database', e);
-        return {
-            success: false, error: e
-        }
-    }
-}
+    return {
+      success: true,
+      data: serializeData(books.map(withBookId)),
+    };
+  } catch (e) {
+    console.error("Error fetching books", e);
+    return {
+      success: false,
+      error: e,
+    };
+  }
+};
 
 export const checkBookExists = async (title: string) => {
-    try {
-        await connectToDatabase();
+  try {
+    const slug = generateSlug(title);
+    const existingBook = await prisma.book.findUnique({ where: { slug } });
 
-        const slug = generateSlug(title);
-
-        const existingBook = await Book.findOne({slug}).lean();
-
-        if(existingBook) {
-            return {
-                exists: true,
-                book: serializeData(existingBook)
-            }
-        }
-
-        return {
-            exists: false,
-        }
-    } catch (e) {
-        console.error('Error checking book exists', e);
-        return {
-            exists: false, error: e
-        }
+    if (existingBook) {
+      return {
+        exists: true,
+        book: serializeData(withBookId(existingBook)),
+      };
     }
-}
+
+    return { exists: false };
+  } catch (e) {
+    console.error("Error checking book exists", e);
+    return { exists: false, error: e };
+  }
+};
 
 export const createBook = async (data: CreateBook) => {
-    try {
-        await connectToDatabase();
+  try {
+    const slug = generateSlug(data.title);
+    const existingBook = await prisma.book.findUnique({ where: { slug } });
 
-        const slug = generateSlug(data.title);
-
-        const existingBook = await Book.findOne({slug}).lean();
-
-        if(existingBook) {
-            return {
-                success: true,
-                data: serializeData(existingBook),
-                alreadyExists: true,
-            }
-        }
-
-        // Todo: Check subscription limits before creating a book
-        const { getUserPlan } = await import("@/lib/subscription.server");
-        const { PLAN_LIMITS } = await import("@/lib/subscription-constants");
-
-        const { auth } = await import("@clerk/nextjs/server");
-        const { userId } = await auth();
-
-        if (!userId || userId !== data.clerkId) {
-            return { success: false, error: "Unauthorized" };
-        }
-
-        const plan = await getUserPlan();
-        const limits = PLAN_LIMITS[plan];
-
-        const bookCount = await Book.countDocuments({ clerkId: userId });
-
-        if (bookCount >= limits.maxBooks) {
-            const { revalidatePath } = await import("next/cache");
-            revalidatePath("/");
-
-            return {
-                success: false,
-                error: `You have reached the maximum number of books allowed for your ${plan} plan (${limits.maxBooks}). Please upgrade to add more books.`,
-                isBillingError: true,
-            };
-        }
-
-        const book = await Book.create({...data, clerkId: userId, slug, totalSegments: 0});
-
-        return {
-            success: true,
-            data: serializeData(book),
-        }
-    } catch (e) {
-        console.error('Error creating a book', e);
-
-        return {
-            success: false,
-            error: e,
-        }
+    if (existingBook) {
+      return {
+        success: true,
+        data: serializeData(withBookId(existingBook)),
+        alreadyExists: true,
+      };
     }
-}
+
+    const book = await prisma.book.create({
+      data: {
+        title: data.title,
+        author: data.author,
+        persona: data.persona,
+        fileURL: data.fileURL,
+        fileBlobKey: data.fileBlobKey,
+        coverURL: data.coverURL,
+        coverBlobKey: data.coverBlobKey,
+        fileSize: data.fileSize,
+        slug,
+        totalSegments: 0,
+      },
+    });
+
+    return {
+      success: true,
+      data: serializeData(withBookId(book)),
+    };
+  } catch (e) {
+    console.error("Error creating a book", e);
+    return {
+      success: false,
+      error: e,
+    };
+  }
+};
 
 export const getBookBySlug = async (slug: string) => {
-    try {
-        await connectToDatabase();
+  try {
+    const book = await prisma.book.findUnique({ where: { slug } });
 
-        const book = await Book.findOne({ slug }).lean();
-
-        if (!book) {
-            return { success: false, error: 'Book not found' };
-        }
-
-        return {
-            success: true,
-            data: serializeData(book)
-        }
-    } catch (e) {
-        console.error('Error fetching book by slug', e);
-        return {
-            success: false, error: e
-        }
+    if (!book) {
+      return { success: false, error: "Book not found" };
     }
-}
 
-export const saveBookSegments = async (bookId: string, clerkId: string, segments: TextSegment[]) => {
-    try {
-        await connectToDatabase();
+    return {
+      success: true,
+      data: serializeData(withBookId(book)),
+    };
+  } catch (e) {
+    console.error("Error fetching book by slug", e);
+    return {
+      success: false,
+      error: e,
+    };
+  }
+};
 
-        console.log('Saving book segments...');
+export const saveBookSegments = async (
+  bookId: string,
+  segments: TextSegment[],
+) => {
+  try {
+    console.log("Saving book segments...");
 
-        const segmentsToInsert = segments.map(({ text, segmentIndex, pageNumber, wordCount }) => ({
-            clerkId, bookId, content: text, segmentIndex, pageNumber, wordCount
-        }));
+    await prisma.bookSegment.createMany({
+      data: segments.map(({ text, segmentIndex, pageNumber, wordCount }) => ({
+        bookId,
+        content: text,
+        segmentIndex,
+        pageNumber,
+        wordCount,
+      })),
+    });
 
-        await BookSegment.insertMany(segmentsToInsert);
+    await prisma.book.update({
+      where: { id: bookId },
+      data: { totalSegments: segments.length },
+    });
 
-        await Book.findByIdAndUpdate(bookId, { totalSegments: segments.length });
+    console.log("Book segments saved successfully.");
 
-        console.log('Book segments saved successfully.');
+    return {
+      success: true,
+      data: { segmentsCreated: segments.length },
+    };
+  } catch (e) {
+    console.error("Error saving book segments", e);
+    return {
+      success: false,
+      error: e,
+    };
+  }
+};
 
-        return {
-            success: true,
-            data: { segmentsCreated: segments.length}
-        }
-    } catch (e) {
-        console.error('Error saving book segments', e);
+export const searchBookSegments = async (
+  bookId: string,
+  query: string,
+  limit: number = 5,
+) => {
+  try {
+    console.log(`Searching for: "${query}" in book ${bookId}`);
 
-        return {
-            success: false,
-            error: e,
-        }
-    }
-}
+    const keywords = query
+      .split(/\s+/)
+      .map((k) => k.trim())
+      .filter((k) => k.length > 2);
 
-// Searches book segments using MongoDB text search with regex fallback
-export const searchBookSegments = async (bookId: string, query: string, limit: number = 5) => {
-    try {
-        await connectToDatabase();
+    const segments = await prisma.bookSegment.findMany({
+      where: {
+        bookId,
+        OR:
+          keywords.length > 0
+            ? keywords.map((keyword) => ({
+                content: { contains: keyword, mode: "insensitive" as const },
+              }))
+            : [{ content: { contains: query, mode: "insensitive" as const } }],
+      },
+      select: {
+        id: true,
+        bookId: true,
+        content: true,
+        segmentIndex: true,
+        pageNumber: true,
+        wordCount: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { segmentIndex: "asc" },
+      take: limit,
+    });
 
-        console.log(`Searching for: "${query}" in book ${bookId}`);
+    console.log(`Search complete. Found ${segments.length} results`);
 
-        const bookObjectId = new mongoose.Types.ObjectId(bookId);
-
-        // Try MongoDB text search first (requires text index)
-        let segments: Record<string, unknown>[] = [];
-        try {
-            segments = await BookSegment.find({
-                bookId: bookObjectId,
-                $text: { $search: query },
-            })
-                .select('_id bookId content segmentIndex pageNumber wordCount')
-                .sort({ score: { $meta: 'textScore' } })
-                .limit(limit)
-                .lean();
-        } catch {
-            // Text index may not exist — fall through to regex fallback
-            segments = [];
-        }
-
-        // Fallback: regex search matching ANY keyword
-        if (segments.length === 0) {
-            const keywords = query.split(/\s+/).filter((k) => k.length > 2);
-            const pattern = keywords.map(escapeRegex).join('|');
-
-            segments = await BookSegment.find({
-                bookId: bookObjectId,
-                content: { $regex: pattern, $options: 'i' },
-            })
-                .select('_id bookId content segmentIndex pageNumber wordCount')
-                .sort({ segmentIndex: 1 })
-                .limit(limit)
-                .lean();
-        }
-
-        console.log(`Search complete. Found ${segments.length} results`);
-
-        return {
-            success: true,
-            data: serializeData(segments),
-        };
-    } catch (error) {
-        console.error('Error searching segments:', error);
-        return {
-            success: false,
-            error: (error as Error).message,
-            data: [],
-        };
-    }
+    return {
+      success: true,
+      data: serializeData(segments.map(withSegmentId)),
+    };
+  } catch (error) {
+    console.error("Error searching segments:", error);
+    return {
+      success: false,
+      error: (error as Error).message,
+      data: [],
+    };
+  }
 };

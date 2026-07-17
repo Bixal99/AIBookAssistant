@@ -121,6 +121,14 @@
   --color-brand: #663820;
   --color-brand-hover: #7a4528;
 
+  /* Landing page tokens */
+  --landing-parchment: #f8f4e9;
+  --landing-parchment-deep: #f3e4c7;
+  --landing-ink: #212a3b;
+  --landing-maroon: #6b2a32;
+  --landing-maroon-hover: #823440;
+  --landing-maroon-soft: #f3e6e7;
+
   /* Layout dimensions */
   --navbar-height: 74px;
 }
@@ -168,6 +176,35 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Themed scrollbar — parchment track, maroon thumb */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--landing-maroon) var(--landing-parchment-deep);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--landing-parchment-deep);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--landing-maroon);
+    border-radius: 999px;
+    border: 2px solid var(--landing-parchment-deep);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--landing-maroon-hover);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: var(--landing-parchment-deep);
   }
 }
 
@@ -278,6 +315,22 @@
   }
   .btn-secondary {
     @apply inline-flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-50 text-[var(--text-secondary)] font-medium rounded-[10px] transition-colors;
+  }
+  .btn-landing {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-[var(--landing-maroon)] hover:bg-[var(--landing-maroon-hover)] text-white font-bold rounded-[10px] transition-colors;
+    font-family: 'IBM Plex Serif', serif;
+  }
+  .landing-section {
+    @apply relative py-16 md:py-24;
+  }
+  .landing-section-maroon {
+    @apply relative py-16 md:py-24 bg-[var(--landing-maroon)] text-white;
+  }
+  .landing-section-maroon-soft {
+    @apply relative py-16 md:py-24 bg-[var(--landing-maroon-soft)];
+  }
+  .landing-divider {
+    @apply h-1 w-full bg-[var(--landing-maroon)];
   }
 
   /* Layout utilities */

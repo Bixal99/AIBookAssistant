@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  author        String
+  persona       String?
+  fileURL       String
+  fileBlobKey   String
+  coverURL      String?
+  coverBlobKey  String?
+  fileSize      Int
+  totalSegments Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  segments      BookSegment[]
+  voiceSessions VoiceSession[]
+}
+
+model BookSegment {
+  id           String   @id @default(cuid())
+  bookId       String
+  content      String
+  segmentIndex Int
+  pageNumber   Int?
+  wordCount    Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, segmentIndex])
+  @@index([bookId])
+  @@index([bookId, pageNumber])
+}
+
+model VoiceSession {
+  id              String    @id @default(cuid())
+  bookId          String
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
+  durationSeconds Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+}

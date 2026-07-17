@@ -1,4 +1,3 @@
-import { Document, Types } from "mongoose";
 import { ReactNode } from "react";
 import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { LucideIcon } from "lucide-react";
@@ -9,44 +8,44 @@ import { UploadSchema } from "@/lib/zod";
 // DATABASE MODELS
 // ============================================
 
-export interface IBook extends Document {
+export interface IBook {
   _id: string;
-  clerkId: string;
+  id: string;
   title: string;
   slug: string;
   author: string;
-  persona?: string;
+  persona?: string | null;
   fileURL: string;
   fileBlobKey: string;
-  coverURL: string;
-  coverBlobKey?: string;
+  coverURL?: string | null;
+  coverBlobKey?: string | null;
   fileSize: number;
   totalSegments: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
-export interface IBookSegment extends Document {
-  clerkId: string;
-  bookId: Types.ObjectId;
+export interface IBookSegment {
+  _id: string;
+  id: string;
+  bookId: string;
   content: string;
   segmentIndex: number;
-  pageNumber?: number;
+  pageNumber?: number | null;
   wordCount: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
-export interface IVoiceSession extends Document {
+export interface IVoiceSession {
   _id: string;
-  clerkId: string;
-  bookId: Types.ObjectId;
-  startedAt: Date;
-  endedAt?: Date;
+  id: string;
+  bookId: string;
+  startedAt: Date | string;
+  endedAt?: Date | string | null;
   durationSeconds: number;
-  billingPeriodStart: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 // ============================================
@@ -56,7 +55,6 @@ export interface IVoiceSession extends Document {
 export type BookUploadFormValues = z.infer<typeof UploadSchema>;
 
 export interface CreateBook {
-  clerkId: string;
   title: string;
   author: string;
   persona?: string;
@@ -77,7 +75,7 @@ export interface TextSegment {
 export interface BookCardProps {
   title: string;
   author: string;
-  coverURL?: string;
+  coverURL?: string | null;
   slug: string;
 }
 
@@ -116,16 +114,6 @@ export interface FileUploadFieldProps<T extends FieldValues> {
   placeholder: string;
   hint: string;
 }
-import { PLANS, PlanType } from "@/lib/subscription-constants";
-
-export interface SessionCheckResult {
-  allowed: boolean;
-  currentCount: number;
-  limit: number;
-  plan: PlanType;
-  maxDurationMinutes: number;
-  error?: string;
-}
 
 export interface StartSessionResult {
   success: boolean;
@@ -146,5 +134,4 @@ declare module "@vercel/blob/client";
 declare module "@hookform/resolvers/zod";
 declare module "react-hook-form";
 declare module "lucide-react";
-declare module "@clerk/nextjs";
 declare module "next/navigation";

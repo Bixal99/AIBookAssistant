@@ -19,12 +19,10 @@ import { Button } from "@/components/ui/button";
 import {
   ACCEPTED_PDF_TYPES,
   ACCEPTED_IMAGE_TYPES,
-  DEFAULT_VOICE,
 } from "@/lib/constants";
 import FileUploader from "./FileUploader";
 import VoiceSelector from "./VoiceSelector";
 import LoadingOverlay from "./LoadingOverlay";
-import { useAuth, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import {
   checkBookExists,
@@ -38,7 +36,6 @@ import { upload } from "@vercel/blob/client";
 const UploadForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { userId } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -57,10 +54,6 @@ const UploadForm = () => {
   });
 
   const onSubmit = async (data: BookUploadFormValues) => {
-    if (!userId) {
-      return toast.error("Please login to upload books");
-    }
-
     setIsSubmitting(true);
 
     // PostHog -> Track Book Uploads...
@@ -120,7 +113,6 @@ const UploadForm = () => {
       }
 
       const book = await createBook({
-        clerkId: userId,
         title: data.title,
         author: data.author,
         persona: data.persona,
@@ -130,11 +122,8 @@ const UploadForm = () => {
         fileSize: pdfFile.size,
       });
 
-      if (!book.success) {
+      if (!book.success || !book.data) {
         toast.error((book.error as string) || "Failed to create book");
-        if (book.isBillingError) {
-          router.push("/subscriptions");
-        }
         return;
       }
 
@@ -147,7 +136,6 @@ const UploadForm = () => {
 
       const segments = await saveBookSegments(
         book.data._id,
-        userId,
         parsedPDF.content,
       );
 
@@ -157,7 +145,7 @@ const UploadForm = () => {
       }
 
       form.reset();
-      router.push("/");
+      router.push("/library");
     } catch (error) {
       console.error(error);
 
