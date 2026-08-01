@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import AssistantPanel from "@/components/workspace/AssistantPanel";
 import PDFViewer from "@/components/workspace/PDFViewer";
@@ -72,10 +73,17 @@ function loadWorkspacePrefs(prefsKey: string): WorkspacePrefs {
 export default function BookWorkspace({ book }: BookWorkspaceProps) {
   const prefsKey = `book-workspace:v2:${book.id}:prefs`;
   const initialPrefs = loadWorkspacePrefs(prefsKey);
+  const searchParams = useSearchParams();
+  const pageFromUrl = (() => {
+    const pageParam = searchParams.get("page");
+    if (!pageParam) return null;
+    const parsed = Number.parseInt(pageParam, 10);
+    return Number.isFinite(parsed) && parsed >= 1 ? parsed : null;
+  })();
+  const initialPage =
+    pageFromUrl ?? (book.readingProgress.currentPage || 1);
 
-  const [currentPage, setCurrentPage] = useState(
-    book.readingProgress.currentPage || 1,
-  );
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(
     book.readingProgress.totalPages || 0,
   );
@@ -90,7 +98,7 @@ export default function BookWorkspace({ book }: BookWorkspaceProps) {
     initialPrefs.thumbnailsOpen,
   );
   const [scrollRequest, setScrollRequest] = useState<ScrollRequest>({
-    page: book.readingProgress.currentPage || 1,
+    page: initialPage,
     nonce: 1,
   });
   const [readingSeconds, setReadingSeconds] = useState(0);
@@ -309,6 +317,7 @@ export default function BookWorkspace({ book }: BookWorkspaceProps) {
       totalPages={totalPages}
       percentage={percentage}
       readingSeconds={readingSeconds}
+      onJumpToPage={jumpToPage}
     />
   ) : null;
 

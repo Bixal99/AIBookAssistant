@@ -434,6 +434,7 @@ export const searchBookSegments = async (
   bookId: string,
   query: string,
   limit: number = 5,
+  currentPage?: number,
 ) => {
   try {
     const { error } = await getBookForMutation(bookId);
@@ -441,38 +442,23 @@ export const searchBookSegments = async (
       return { success: false, error, data: [] };
     }
 
-    const keywords = query
-      .split(/\s+/)
-      .map((k) => k.trim())
-      .filter((k) => k.length > 2);
+    const { retrieveBookContext } = await import("@/lib/ai/rag");
+    const { segments } = await retrieveBookContext(bookId, query, currentPage);
 
-    const segments = await prisma.bookSegment.findMany({
-      where: {
-        bookId,
-        OR:
-          keywords.length > 0
-            ? keywords.map((keyword) => ({
-                content: { contains: keyword, mode: "insensitive" as const },
-              }))
-            : [{ content: { contains: query, mode: "insensitive" as const } }],
-      },
-      select: {
-        id: true,
-        bookId: true,
-        content: true,
-        segmentIndex: true,
-        pageNumber: true,
-        wordCount: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      orderBy: { segmentIndex: "asc" },
-      take: limit,
-    });
+    const mapped = segments.slice(0, limit).map((segment) => ({
+      id: segment.id,
+      bookId,
+      content: segment.content,
+      segmentIndex: segment.segmentIndex,
+      pageNumber: segment.pageNumber,
+      wordCount: segment.content.split(/\s+/).filter(Boolean).length,
+    }));
 
     return {
       success: true,
-      data: serializeData(segments.map(withSegmentId)),
+      data: serializeData(
+        mapped.map((segment) => ({ ...segment, _id: segment.id })),
+      ),
     };
   } catch (error) {
     console.error("Error searching segments:", error);

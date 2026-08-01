@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, PanelLeft, PanelRight } from "lucide-react";
+import { ChevronLeft, MessageSquare, PanelLeft, PanelRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { WorkspaceBook } from "@/components/workspace/types";
@@ -61,29 +61,46 @@ export default function WorkspaceHeader({
           </p>
         </div>
 
-        <div className="hidden shrink-0 items-center gap-2 sm:flex">
+        <div className="flex shrink-0 items-center gap-2">
           <Button
-            type="button"
-            variant="ghost"
+            asChild
+            variant="outline"
             size="sm"
             className="rounded-full px-2.5"
-            onClick={onToggleLeftPanel}
-            aria-label={leftPanelOpen ? "Hide navigation" : "Show navigation"}
           >
-            <PanelLeft className="size-4" />
-            <span className="text-xs">{leftPanelOpen ? "Hide chapters" : "Chapters"}</span>
+            <Link href={`/books/${book.slug}/chat`}>
+              <MessageSquare className="size-4" />
+              <span className="hidden text-xs sm:inline">Chat</span>
+            </Link>
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="rounded-full px-2.5"
-            onClick={onToggleRightPanel}
-            aria-label={rightPanelOpen ? "Hide assistant" : "Show assistant"}
-          >
-            <PanelRight className="size-4" />
-            <span className="text-xs">{rightPanelOpen ? "Hide assistant" : "Assistant"}</span>
-          </Button>
+          <div className="hidden items-center gap-2 sm:flex">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="rounded-full px-2.5"
+              onClick={onToggleLeftPanel}
+              aria-label={leftPanelOpen ? "Hide navigation" : "Show navigation"}
+            >
+              <PanelLeft className="size-4" />
+              <span className="text-xs">
+                {leftPanelOpen ? "Hide chapters" : "Chapters"}
+              </span>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="rounded-full px-2.5"
+              onClick={onToggleRightPanel}
+              aria-label={rightPanelOpen ? "Hide assistant" : "Show assistant"}
+            >
+              <PanelRight className="size-4" />
+              <span className="text-xs">
+                {rightPanelOpen ? "Hide assistant" : "Assistant"}
+              </span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

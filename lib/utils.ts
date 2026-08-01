@@ -27,11 +27,13 @@ export const escapeRegex = (str: string): string => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
-// Splits text content into segments for MongoDB storage and search
+// Splits text content into segments for storage and search
 export const splitIntoSegments = (
     text: string,
     segmentSize: number = 500, // Maximum words per segment
     overlapSize: number = 50, // Words to overlap between segments for context
+    pageNumber?: number,
+    startingIndex: number = 0,
 ): TextSegment[] => {
   // Validate parameters to prevent infinite loops
   if (segmentSize <= 0) {
@@ -42,9 +44,11 @@ export const splitIntoSegments = (
   }
 
   const words = text.split(/\s+/).filter((word) => word.length > 0);
+  if (words.length === 0) return [];
+
   const segments: TextSegment[] = [];
 
-  let segmentIndex = 0;
+  let segmentIndex = startingIndex;
   let startIndex = 0;
 
   while (startIndex < words.length) {
@@ -56,6 +60,7 @@ export const splitIntoSegments = (
       text: segmentText,
       segmentIndex,
       wordCount: segmentWords.length,
+      ...(pageNumber !== undefined ? { pageNumber } : {}),
     });
 
     segmentIndex++;
@@ -138,8 +143,9 @@ export async function parsePDFFile(file: File) {
     // Convert canvas to data URL
     const coverDataURL = canvas.toDataURL('image/png');
 
-    // Extract text from all pages
-    let fullText = '';
+    // Extract text per page and segment with pageNumber for citations
+    const segments: TextSegment[] = [];
+    let nextSegmentIndex = 0;
 
     for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
       const page = await pdfDocument.getPage(pageNum);
@@ -147,12 +153,21 @@ export async function parsePDFFile(file: File) {
       const pageText = textContent.items
           .filter((item) => 'str' in item)
           .map((item) => (item as { str: string }).str)
-          .join(' ');
-      fullText += pageText + '\n';
-    }
+          .join(' ')
+          .trim();
 
-    // Split text into segments for search
-    const segments = splitIntoSegments(fullText);
+      if (!pageText) continue;
+
+      const pageSegments = splitIntoSegments(
+          pageText,
+          500,
+          50,
+          pageNum,
+          nextSegmentIndex,
+      );
+      segments.push(...pageSegments);
+      nextSegmentIndex += pageSegments.length;
+    }
 
     // Clean up PDF document resources
     await pdfDocument.destroy();

@@ -80,6 +80,33 @@ export interface IReadingSession {
   updatedAt: Date | string;
 }
 
+export interface ChatCitation {
+  segmentId: string;
+  pageNumber?: number | null;
+  excerpt: string;
+  score?: number;
+}
+
+export interface IChatSession {
+  _id: string;
+  id: string;
+  userId: string;
+  bookId: string;
+  title?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface IChatMessage {
+  _id: string;
+  id: string;
+  sessionId: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  citations?: ChatCitation[] | null;
+  createdAt: Date | string;
+}
+
 // ============================================
 // FORM & INPUT TYPES
 // ============================================

@@ -12,12 +12,16 @@
     "db:wipe-books": "node --env-file=.env.local scripts/wipe-orphan-books.mjs"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.17",
+    "@ai-sdk/groq": "^4.0.11",
+    "@ai-sdk/openai": "^4.0.15",
     "@better-auth/prisma-adapter": "^1.6.23",
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "6.19.2",
     "@vapi-ai/web": "^2.5.2",
     "@vercel/blob": "^2.6.1",
+    "ai": "^7.0.30",
     "better-auth": "^1.6.23",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -32,8 +36,10 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.2",
+    "react-markdown": "^10.1.0",
     "react-pdf": "^10.4.1",
     "recharts": "^3.9.2",
+    "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6"

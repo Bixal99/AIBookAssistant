@@ -21,6 +21,7 @@ const LABELS: Record<string, string> = {
   new: "Upload",
   settings: "Settings",
   admin: "Admin",
+  chat: "Assistant",
 };
 
 export default function AppBreadcrumbs() {
