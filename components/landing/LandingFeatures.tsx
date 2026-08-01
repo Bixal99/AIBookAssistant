@@ -93,7 +93,7 @@ const LandingFeatures = () => {
       <section
         id="features"
         ref={sectionRef}
-        className="landing-section scroll-mt-28 bg-[var(--landing-parchment)]"
+        className="landing-section scroll-mt-20 bg-[var(--landing-parchment)] sm:scroll-mt-24"
       >
         <div className="wrapper">
           <div className="features-heading max-w-2xl">

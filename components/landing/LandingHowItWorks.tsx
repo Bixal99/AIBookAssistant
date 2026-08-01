@@ -81,7 +81,7 @@ const LandingHowItWorks = () => {
     <section
       id="how-it-works"
       ref={sectionRef}
-      className="landing-section-maroon scroll-mt-28"
+      className="landing-section-maroon scroll-mt-20 sm:scroll-mt-24"
     >
       <div className="wrapper">
         <div className="how-heading max-w-2xl">

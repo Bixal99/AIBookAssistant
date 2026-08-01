@@ -76,37 +76,37 @@ const AuthShell = ({ headline, support, children }: AuthShellProps) => {
         </div>
       </div>
 
-      <div className="relative wrapper flex min-h-[100svh] flex-col justify-center py-16">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-          <div className="max-w-md">
+      <div className="relative wrapper flex min-h-[100svh] flex-col justify-center py-12 sm:py-16 [@media(max-height:700px)]:min-h-0 [@media(max-height:700px)]:py-10">
+        <div className="grid min-w-0 items-center gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-12">
+          <div className="min-w-0 max-w-md">
             <Link
               href={ROUTES.home}
-              className="auth-brand inline-flex items-center gap-2"
+              className="auth-brand inline-flex min-w-0 items-center gap-2"
             >
               <Image
                 src="/assets/logo-mark.png"
                 alt=""
                 width={40}
                 height={40}
-                className="h-10 w-10 object-contain"
+                className="h-9 w-9 shrink-0 object-contain sm:h-10 sm:w-10"
                 priority
               />
-              <span className="font-serif text-4xl font-bold tracking-[-0.03em] text-[var(--landing-ink)] sm:text-5xl">
+              <span className="font-serif text-[clamp(1.75rem,7vw,3rem)] font-bold tracking-[-0.03em] text-[var(--landing-ink)]">
                 {AUTH_COPY.brand}
               </span>
             </Link>
 
-            <h1 className="auth-headline mt-8 font-serif text-3xl font-semibold tracking-[-0.02em] text-[var(--landing-ink)] sm:text-4xl">
+            <h1 className="auth-headline mt-6 font-serif text-[clamp(1.5rem,5vw,2.25rem)] font-semibold tracking-[-0.02em] text-[var(--landing-ink)] sm:mt-8">
               {headline}
             </h1>
             <p className="auth-support mt-3 text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
               {support}
             </p>
 
-            <div className="auth-form mt-8">{children}</div>
+            <div className="auth-form mt-6 w-full min-w-0 sm:mt-8">{children}</div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-xs lg:invisible lg:h-0 lg:max-w-none">
+          <div className="relative mx-auto w-full max-w-[min(100%,18rem)] sm:max-w-xs lg:invisible lg:h-0 lg:max-w-none">
             <Image
               src="/assets/hero-illustration.png"
               alt="Vintage books and a globe"

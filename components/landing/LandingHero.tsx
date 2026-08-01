@@ -78,43 +78,50 @@ const LandingHero = () => {
         }}
       />
 
-      <div className="landing-visual pointer-events-none absolute inset-y-0 right-0 hidden w-[55%] md:block">
+      <div className="landing-visual pointer-events-none absolute inset-y-0 right-0 hidden w-[min(55%,42rem)] lg:block">
         <div className="relative h-full w-full">
           <Image
             src="/assets/hero-illustration.png"
             alt=""
             fill
             priority
-            sizes="55vw"
+            sizes="(min-width: 1024px) 42vw, 0px"
             className="object-contain object-right drop-shadow-[var(--shadow-soft-lg)]"
           />
         </div>
       </div>
 
-      <div className="relative wrapper flex min-h-[100svh] flex-col justify-center pt-[calc(var(--navbar-height)+5.5rem)] pb-20 md:pt-[calc(var(--navbar-height)+4rem)] md:pb-24">
-        <div className="grid items-center gap-10 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-          <div className="max-w-xl">
-            <p className="landing-brand font-serif text-5xl font-bold tracking-[-0.03em] text-[var(--landing-ink)] sm:text-6xl md:text-7xl">
+      <div className="relative wrapper flex min-h-[100svh] flex-col justify-center pt-[calc(var(--navbar-height)+2rem)] pb-12 sm:pb-16 md:pt-[calc(var(--navbar-height)+3rem)] md:pb-20 max-[640px]:min-h-0 max-[640px]:pt-[calc(var(--navbar-height)+1.5rem)] [@media(max-height:700px)]:min-h-0 [@media(max-height:700px)]:py-16 [@media(max-height:700px)]:pt-[calc(var(--navbar-height)+1.25rem)]">
+        <div className="grid min-w-0 items-center gap-8 md:gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+          <div className="min-w-0 max-w-xl">
+            <p className="landing-brand font-serif text-[clamp(2.25rem,8vw,4.5rem)] font-bold leading-[1.05] tracking-[-0.03em] text-[var(--landing-ink)]">
               BookBy
             </p>
-            <h1 className="landing-headline mt-4 font-serif text-3xl font-semibold leading-tight tracking-[-0.02em] text-[var(--landing-ink)] sm:text-4xl md:text-5xl">
+            <h1 className="landing-headline mt-3 font-serif text-[clamp(1.5rem,5vw,3rem)] font-semibold leading-tight tracking-[-0.02em] text-[var(--landing-ink)] sm:mt-4">
               Talk with your books
             </h1>
-            <p className="landing-support mt-5 max-w-md text-lg leading-relaxed text-[var(--text-secondary)]">
+            <p className="landing-support mt-4 max-w-md text-base leading-relaxed text-[var(--text-secondary)] sm:mt-5 sm:text-lg">
               Upload a PDF and explore it through voice — summaries, questions,
               and conversation in one place.
             </p>
-            <div className="landing-ctas mt-8 flex flex-wrap items-center gap-3">
-              <LandingButton href={ROUTES.signUp}>
+            <div className="landing-ctas mt-6 flex w-full flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center">
+              <LandingButton
+                href={ROUTES.signUp}
+                className="w-full justify-center sm:w-auto"
+              >
                 {AUTH_COPY.getStarted}
               </LandingButton>
-              <LandingButton href={ROUTES.signIn} variant="secondary">
+              <LandingButton
+                href={ROUTES.signIn}
+                variant="secondary"
+                className="w-full justify-center sm:w-auto"
+              >
                 {AUTH_COPY.signInCta}
               </LandingButton>
             </div>
           </div>
 
-          <div className="landing-visual relative mx-auto w-full max-w-sm md:invisible md:h-0 md:max-w-none">
+          <div className="landing-visual relative mx-auto w-full max-w-[min(100%,22rem)] sm:max-w-sm lg:invisible lg:h-0 lg:max-w-none">
             <Image
               src="/assets/hero-illustration.png"
               alt="Vintage books and a globe"

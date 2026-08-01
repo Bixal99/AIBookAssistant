@@ -130,8 +130,14 @@
   /* Warm rose tint — stays on parchment, not cool lavender */
   --landing-maroon-soft: #efe4df;
 
-  /* Layout dimensions */
-  --navbar-height: 74px;
+  /* Layout dimensions — single compact bar across breakpoints */
+  --navbar-height: 64px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --navbar-height: 72px;
+  }
 }
 
 .dark {
@@ -209,8 +215,12 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply overflow-x-clip;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply overflow-x-clip bg-background text-foreground;
   }
 
   /* Themed scrollbar — parchment track, maroon thumb */
@@ -264,7 +274,7 @@
 
 @layer utilities {
   .wrapper {
-    @apply max-w-7xl px-5 mx-auto w-full;
+    @apply mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-5 lg:px-8;
   }
   .container {
     @apply pt-[94px] pb-18 min-h-screen;
@@ -279,7 +289,7 @@
     @apply text-lg mb-1 !font-medium;
   }
   .auth-wrapper {
-    @apply max-w-7xl px-5 mx-auto w-full min-h-screen pt-20 flex flex-col items-center justify-center py-10;
+    @apply mx-auto flex min-h-screen w-full min-w-0 max-w-7xl flex-col items-center justify-center px-4 py-10 pt-20 sm:px-5;
   }
   .auth-shadow {
     @apply rounded-2xl bg-[var(--accent-light)];
@@ -310,7 +320,7 @@
     @apply fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm;
   }
   .loading-shadow-wrapper {
-    @apply rounded-xl p-10 w-fit md:min-w-md;
+    @apply w-full max-w-md rounded-xl p-6 sm:w-fit sm:p-10 md:min-w-md;
   }
   .loading-shadow {
     @apply rounded-xl flex flex-col items-center space-y-6;
@@ -419,7 +429,7 @@
      NAVBAR COMPONENT
      =========================================== */
   .logo-text {
-    @apply font-semibold text-xl hidden sm:block text-[var(--landing-ink)];
+    @apply hidden text-lg font-semibold text-[var(--landing-ink)] sm:block sm:text-xl;
   }
   .nav-link-base {
     @apply cursor-pointer text-base font-medium leading-6 transition-all;

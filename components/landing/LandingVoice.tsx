@@ -51,7 +51,7 @@ const LandingVoice = () => {
       <section
         id="voice"
         ref={sectionRef}
-        className="landing-section-maroon-soft scroll-mt-28"
+        className="landing-section-maroon-soft scroll-mt-20 sm:scroll-mt-24"
       >
         <div className="wrapper">
           <div className="voice-content mx-auto max-w-3xl text-center">
@@ -66,11 +66,18 @@ const LandingVoice = () => {
               you can clarify passages, chase ideas, and learn at conversation
               speed.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <LandingButton href={ROUTES.signUp}>
+            <div className="mt-8 flex w-full flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <LandingButton
+                href={ROUTES.signUp}
+                className="w-full justify-center sm:w-auto"
+              >
                 {AUTH_COPY.getStarted}
               </LandingButton>
-              <LandingButton href={ROUTES.signIn} variant="secondary">
+              <LandingButton
+                href={ROUTES.signIn}
+                variant="secondary"
+                className="w-full justify-center sm:w-auto"
+              >
                 {AUTH_COPY.signInCta}
               </LandingButton>
             </div>

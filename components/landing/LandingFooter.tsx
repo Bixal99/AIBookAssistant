@@ -144,7 +144,7 @@ const LandingFooter = () => {
       <div className="border-t border-[color-mix(in_srgb,var(--landing-maroon)_18%,transparent)] bg-[var(--landing-parchment)]">
         <div className="wrapper flex flex-col gap-2 py-5 text-sm text-[var(--text-secondary)] sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} BookBy. All rights reserved.</p>
-          <p className="text-[var(--text-muted)]">
+          <p className="text-[var(--text-muted)] break-words">
             Talk with your books. · Built with Next.js · Vapi · Prisma
           </p>
         </div>
